@@ -1,0 +1,169 @@
+<!-- pages/messages/messages.wxml -->
+<view class="messages-container">
+  <!-- 页面头部 -->
+  <view class="header">
+    <text class="header-title">消息中心</text>
+    <view class="header-actions">
+      <text class="refresh-btn" bindtap="refreshMessages">刷新</text>
+    </view>
+  </view>
+
+  <!-- 摘要信息 -->
+  <view class="summary-card">
+    <view class="summary-stats">
+      <view class="summary-item">
+        <text class="summary-value">{{pendingMeetupCount}}</text>
+        <text class="summary-label">待处理邀约</text>
+      </view>
+      <view class="summary-divider"></view>
+      <view class="summary-item">
+        <text class="summary-value">{{unreadChatCount}}</text>
+        <text class="summary-label">未读消息</text>
+      </view>
+    </view>
+    <view class="summary-highlight">
+      <text class="highlight-icon">🐾</text>
+      <text class="highlight-text">{{highlightMessage}}</text>
+    </view>
+  </view>
+
+  <!-- 标签切换 -->
+  <view class="tabs">
+    <view 
+      class="tab {{activeTab === 'meetups' ? 'active' : ''}}"
+      data-tab="meetups"
+      bindtap="switchTab"
+    >
+      约遛狗
+      <text class="tab-count" wx:if="{{pendingMeetupCount > 0}}">{{pendingMeetupCount}}</text>
+    </view>
+    <view 
+      class="tab {{activeTab === 'chats' ? 'active' : ''}}"
+      data-tab="chats"
+      bindtap="switchTab"
+    >
+      聊天记录
+      <text class="tab-count" wx:if="{{unreadChatCount > 0}}">{{unreadChatCount}}</text>
+    </view>
+  </view>
+
+  <!-- 约遛狗消息列表 -->
+  <scroll-view 
+    class="message-list" 
+    scroll-y="true"
+    wx:if="{{activeTab === 'meetups'}}"
+    refresher-enabled="{{true}}"
+    refresher-triggered="{{refreshing}}"
+    bindrefresherrefresh="onRefresh"
+  >
+    <view wx:if="{{meetupList.length === 0}}" class="empty">
+      <text class="empty-icon">📅</text>
+      <text class="empty-text">暂无约遛狗消息</text>
+      <text class="empty-tip">去地图页面找朋友约遛狗吧！</text>
+    </view>
+
+    <view wx:for="{{meetupList}}" wx:key="id" class="message-item meetup-item">
+      <view class="item-header">
+        <image src="{{item.targetAvatar}}" class="avatar avatar-md" mode="aspectFill"></image>
+        <view class="item-info">
+          <text class="item-title">{{item.type === 'sent' ? '您邀请了' : '邀请您'}} {{item.targetUser}}</text>
+          <text class="item-subtitle">{{item.targetOwner}}</text>
+        </view>
+        <view class="item-status">
+          <text class="status-badge {{item.status}}">
+            <block wx:if="{{item.status === 'pending'}}">待回复</block>
+            <block wx:elif="{{item.status === 'accepted'}}">已同意</block>
+            <block wx:elif="{{item.status === 'rejected'}}">已拒绝</block>
+            <block wx:elif="{{item.status === 'cancelled'}}">已取消</block>
+            <block wx:else>{{item.status}}</block>
+          </text>
+        </view>
+      </view>
+
+      <view class="item-content">
+        <view class="meetup-details">
+          <view class="detail-item">
+            <text class="detail-icon">📅</text>
+            <text class="detail-text">{{item.date}} {{item.time}}</text>
+          </view>
+          <view class="detail-item">
+            <text class="detail-icon">📍</text>
+            <text class="detail-text">{{item.location}}</text>
+          </view>
+          <view class="detail-item" wx:if="{{item.note}}">
+            <text class="detail-icon">💭</text>
+            <text class="detail-text">{{item.note}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="item-actions" wx:if="{{item.status === 'pending'}}">
+        <button 
+          wx:if="{{item.type === 'received'}}"
+          class="btn btn-secondary"
+          data-id="{{item.id}}"
+          bindtap="rejectMeetup"
+        >拒绝</button>
+        <button 
+          wx:if="{{item.type === 'received'}}"
+          class="btn btn-primary"
+          data-id="{{item.id}}"
+          bindtap="acceptMeetup"
+        >同意</button>
+        <button 
+          wx:if="{{item.type === 'sent'}}"
+          class="btn btn-secondary"
+          data-id="{{item.id}}"
+          bindtap="cancelMeetup"
+        >取消邀请</button>
+      </view>
+
+      <view class="item-footer">
+        <text class="item-time">{{item.createdAt}}</text>
+        <view class="item-extra">
+          <text 
+            class="extra-btn"
+            data-id="{{item.id}}"
+            bindtap="viewMeetupDetail"
+          >查看详情</text>
+          <text 
+            class="extra-btn"
+            data-user="{{item.targetUser}}"
+            data-avatar="{{item.targetAvatar}}"
+            bindtap="startChat"
+          >发消息</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 聊天记录列表 -->
+  <scroll-view 
+    class="message-list" 
+    scroll-y="true"
+    wx:if="{{activeTab === 'chats'}}"
+    refresher-enabled="{{true}}"
+    refresher-triggered="{{refreshing}}"
+    bindrefresherrefresh="onRefresh"
+  >
+    <view wx:if="{{chatList.length === 0}}" class="empty">
+      <text class="empty-icon">💬</text>
+      <text class="empty-text">暂无聊天记录</text>
+      <text class="empty-tip">和遛狗朋友开始聊天吧！</text>
+    </view>
+
+    <view wx:for="{{chatList}}" wx:key="id" class="message-item chat-item" bindtap="enterChat" data-user="{{item}}">
+      <image src="{{item.avatar}}" class="avatar avatar-lg" mode="aspectFill"></image>
+      <view class="chat-content">
+        <view class="chat-header">
+          <text class="chat-name">{{item.name}}</text>
+          <text class="chat-time">{{item.lastTime}}</text>
+        </view>
+        <view class="chat-preview">
+          <text class="chat-message">{{item.lastMessage}}</text>
+          <view class="chat-badge" wx:if="{{item.unreadCount > 0}}">{{item.unreadCount}}</view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</view> 

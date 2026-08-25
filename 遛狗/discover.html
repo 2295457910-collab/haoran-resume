@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发现 - PawMate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        .discover-container {
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+        .story-circle {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid #3b82f6;
+            padding: 2px;
+            cursor: pointer;
+        }
+        .story-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .post-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        .heart-animation {
+            transition: all 0.2s ease;
+        }
+        .heart-animation.liked {
+            color: #ef4444;
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 导航栏 -->
+    <div class="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-100">
+        <h1 class="text-xl font-bold text-gray-900">发现</h1>
+        <div class="flex items-center gap-3">
+            <button class="p-2 rounded-full bg-blue-50 text-blue-600">
+                <i class="fas fa-bell text-lg"></i>
+            </button>
+            <button class="p-2 rounded-full bg-green-50 text-green-600">
+                <i class="fas fa-camera text-lg"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="discover-container">
+        <!-- 故事/动态圈 -->
+        <div class="bg-white p-4 mb-2">
+            <div class="flex items-center gap-4 overflow-x-auto">
+                <!-- 我的故事 -->
+                <div class="flex flex-col items-center min-w-0">
+                    <div class="story-circle bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                        <i class="fas fa-plus text-white text-xl"></i>
+                    </div>
+                    <span class="text-xs text-gray-600 mt-2">我的动态</span>
+                </div>
+                
+                <!-- 其他用户故事 -->
+                <div class="flex flex-col items-center min-w-0">
+                    <div class="story-circle">
+                        <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=100&h=100" 
+                             alt="Lucky" class="story-image">
+                    </div>
+                    <span class="text-xs text-gray-600 mt-2 truncate">Lucky</span>
+                </div>
+                
+                <div class="flex flex-col items-center min-w-0">
+                    <div class="story-circle">
+                        <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=100&h=100" 
+                             alt="Max" class="story-image">
+                    </div>
+                    <span class="text-xs text-gray-600 mt-2 truncate">Max</span>
+                </div>
+                
+                <div class="flex flex-col items-center min-w-0">
+                    <div class="story-circle">
+                        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=100&h=100" 
+                             alt="Bella" class="story-image">
+                    </div>
+                    <span class="text-xs text-gray-600 mt-2 truncate">Bella</span>
+                </div>
+                
+                <div class="flex flex-col items-center min-w-0">
+                    <div class="story-circle">
+                        <img src="https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?auto=format&fit=crop&w=100&h=100" 
+                             alt="Coco" class="story-image">
+                    </div>
+                    <span class="text-xs text-gray-600 mt-2 truncate">Coco</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 动态列表 -->
+        <div class="px-4 space-y-4 pb-6">
+            <!-- 动态1 -->
+            <div class="post-card">
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=100&h=100" 
+                                 alt="用户头像" class="w-10 h-10 rounded-full object-cover">
+                            <div>
+                                <h3 class="font-semibold text-gray-900">金毛Lucky</h3>
+                                <p class="text-xs text-gray-500">张小姐 • 2分钟前</p>
+                            </div>
+                        </div>
+                        <button class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                    
+                    <p class="text-gray-800 mb-3">今天在公园学会了接飞盘！🥏 主人说我进步很快呢～有没有小伙伴想一起玩的？</p>
+                    
+                    <img src="https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=600&h=400" 
+                         alt="狗狗玩飞盘" class="w-full h-48 object-cover rounded-lg mb-3">
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <button onclick="toggleLike(this)" class="flex items-center gap-2 text-gray-600 hover:text-red-500">
+                                <i class="far fa-heart heart-animation"></i>
+                                <span class="text-sm">124</span>
+                            </button>
+                            <button class="flex items-center gap-2 text-gray-600 hover:text-blue-500">
+                                <i class="far fa-comment"></i>
+                                <span class="text-sm">18</span>
+                            </button>
+                            <button class="flex items-center gap-2 text-gray-600 hover:text-green-500">
+                                <i class="fas fa-share"></i>
+                                <span class="text-sm">5</span>
+                            </button>
+                        </div>
+                        <button class="text-yellow-500 hover:text-yellow-600">
+                            <i class="far fa-bookmark"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 动态2 -->
+            <div class="post-card">
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=100&h=100" 
+                                 alt="用户头像" class="w-10 h-10 rounded-full object-cover">
+                            <div>
+                                <h3 class="font-semibold text-gray-900">哈士奇Max</h3>
+                                <p class="text-xs text-gray-500">李先生 • 15分钟前</p>
+                            </div>
+                        </div>
+                        <button class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                    
+                    <p class="text-gray-800 mb-3">今天又拆家了😅 主人不在的时候偷偷把沙发咬了个洞...现在正在反省中</p>
+                    
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        <img src="https://images.unsplash.com/photo-1605568427561-40dd23c2acea?auto=format&fit=crop&w=300&h=200" 
+                             alt="拆家现场" class="w-full h-24 object-cover rounded-lg">
+                        <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=300&h=200" 
+                             alt="反省中" class="w-full h-24 object-cover rounded-lg">
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <button onclick="toggleLike(this)" class="flex items-center gap-2 text-gray-600 hover:text-red-500">
+                                <i class="far fa-heart heart-animation"></i>
+                                <span class="text-sm">89</span>
+                            </button>
+                            <button class="flex items-center gap-2 text-gray-600 hover:text-blue-500">
+                                <i class="far fa-comment"></i>
+                                <span class="text-sm">32</span>
+                            </button>
+                            <button class="flex items-center gap-2 text-gray-600 hover:text-green-500">
+                                <i class="fas fa-share"></i>
+                                <span class="text-sm">12</span>
+                            </button>
+                        </div>
+                        <button class="text-yellow-500 hover:text-yellow-600">
+                            <i class="far fa-bookmark"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 推荐用户卡片 -->
+            <div class="bg-white rounded-2xl p-4 border border-blue-100">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-semibold text-gray-900">推荐关注</h3>
+                    <button class="text-blue-600 text-sm">查看更多</button>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=100&h=100" 
+                             alt="推荐用户" class="w-12 h-12 rounded-full object-cover">
+                        <div>
+                            <h4 class="font-medium text-gray-900">柯基Bella</h4>
+                            <p class="text-sm text-gray-500">王小姐 • 附近500米</p>
+                        </div>
+                    </div>
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                        关注
+                    </button>
+                </div>
+            </div>
+
+            <!-- 动态3 -->
+            <div class="post-card">
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=100&h=100" 
+                                 alt="用户头像" class="w-10 h-10 rounded-full object-cover">
+                            <div>
+                                <h3 class="font-semibold text-gray-900">柯基Bella</h3>
+                                <p class="text-xs text-gray-500">王小姐 • 1小时前</p>
+                            </div>
+                        </div>
+                        <button class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                    </div>
+                    
+                    <p class="text-gray-800 mb-3">河边的夕阳太美了🌅 和新朋友Lucky一起散步，心情超好！谢谢PawMate让我们相遇～</p>
+                    
+                    <img src="https://images.unsplash.com/photo-1526736414100-d3c86cc8ba4a?auto=format&fit=crop&w=600&h=400" 
+                         alt="河边夕阳" class="w-full h-48 object-cover rounded-lg mb-3">
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <button onclick="toggleLike(this)" class="flex items-center gap-2 text-gray-600 hover:text-red-500">
+                                <i class="far fa-heart heart-animation"></i>
+                                <span class="text-sm">156</span>
+                            </button>
+                            <button class="flex items-center gap-2 text-gray-600 hover:text-blue-500">
+                                <i class="far fa-comment"></i>
+                                <span class="text-sm">24</span>
+                            </button>
+                            <button class="flex items-center gap-2 text-gray-600 hover:text-green-500">
+                                <i class="fas fa-share"></i>
+                                <span class="text-sm">8</span>
+                            </button>
+                        </div>
+                        <button class="text-yellow-500 hover:text-yellow-600">
+                            <i class="far fa-bookmark"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleLike(button) {
+            const icon = button.querySelector('i');
+            const count = button.querySelector('span');
+            const currentCount = parseInt(count.textContent);
+            
+            if (icon.classList.contains('far')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas', 'liked');
+                count.textContent = currentCount + 1;
+            } else {
+                icon.classList.remove('fas', 'liked');
+                icon.classList.add('far');
+                count.textContent = currentCount - 1;
+            }
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,307 @@
+/* pages/messages/messages.wxss */
+.messages-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #f8fafc;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx;
+  background: #ffffff;
+  border-bottom: 2rpx solid #f3f4f6;
+}
+
+.header-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.refresh-btn {
+  font-size: 28rpx;
+  color: #3b82f6;
+  padding: 16rpx 24rpx;
+  border-radius: 16rpx;
+  background: #f0f9ff;
+}
+
+.tabs {
+  display: flex;
+  background: #ffffff;
+  border-bottom: 2rpx solid #f3f4f6;
+}
+
+.summary-card {
+  margin: 20rpx 32rpx 0;
+  background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+  border-radius: 28rpx;
+  padding: 32rpx;
+  box-shadow: 0 12rpx 24rpx rgba(59, 130, 246, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.summary-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.summary-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.summary-value {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.summary-label {
+  font-size: 24rpx;
+  color: #475569;
+}
+
+.summary-divider {
+  width: 2rpx;
+  height: 56rpx;
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.summary-highlight {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  padding: 20rpx 24rpx;
+  background: rgba(59, 130, 246, 0.08);
+  border-radius: 20rpx;
+}
+
+.summary-highlight .highlight-icon {
+  font-size: 32rpx;
+}
+
+.summary-highlight .highlight-text {
+  font-size: 26rpx;
+  line-height: 1.6;
+  color: #1e3a8a;
+  flex: 1;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32rpx 0;
+  font-size: 28rpx;
+  color: #6b7280;
+  position: relative;
+  gap: 12rpx;
+}
+
+.tab.active {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 4rpx;
+  background: #3b82f6;
+  border-radius: 2rpx;
+}
+
+.tab-count {
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 20rpx;
+  min-width: 32rpx;
+  text-align: center;
+}
+
+.message-list {
+  flex: 1;
+  padding: 0 32rpx;
+}
+
+.message-item {
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  margin: 24rpx 0;
+  box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.item-info {
+  flex: 1;
+  margin-left: 24rpx;
+}
+
+.item-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1f2937;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.item-subtitle {
+  font-size: 24rpx;
+  color: #6b7280;
+}
+
+.status-badge {
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 20rpx;
+  font-weight: 500;
+}
+
+.status-badge.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.accepted {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.status-badge.rejected {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.meetup-details {
+  margin-bottom: 24rpx;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.detail-icon {
+  font-size: 24rpx;
+  width: 32rpx;
+}
+
+.detail-text {
+  font-size: 24rpx;
+  color: #374151;
+  flex: 1;
+}
+
+.item-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+}
+
+.item-actions .btn {
+  flex: 1;
+  padding: 20rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  text-align: center;
+  border: none;
+}
+
+.item-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 24rpx;
+  border-top: 2rpx solid #f3f4f6;
+}
+
+.item-time {
+  font-size: 20rpx;
+  color: #9ca3af;
+}
+
+.item-extra {
+  display: flex;
+  gap: 24rpx;
+}
+
+.extra-btn {
+  font-size: 24rpx;
+  color: #3b82f6;
+}
+
+/* 聊天项目样式 */
+.chat-item {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.chat-content {
+  flex: 1;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.chat-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.chat-time {
+  font-size: 20rpx;
+  color: #9ca3af;
+}
+
+.chat-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chat-message {
+  font-size: 24rpx;
+  color: #6b7280;
+  flex: 1;
+}
+
+.chat-badge {
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 20rpx;
+  min-width: 32rpx;
+  text-align: center;
+} 

@@ -1,0 +1,178 @@
+<!-- pages/friends/friends.wxml -->
+<view class="friends-container">
+  <!-- 顶部导航 -->
+  <view class="friends-header">
+    <view class="header-left" bindtap="goBack">
+      <text class="back-icon">←</text>
+    </view>
+    <text class="header-title">遛狗好友</text>
+    <view class="header-right">
+      <view class="search-btn" bindtap="showSearch">
+        <text class="search-icon">🔍</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索栏 -->
+  <view class="search-section {{showSearchBar ? 'show' : ''}}">
+    <view class="search-box">
+      <input class="search-input" placeholder="搜索好友..." bindinput="onSearchInput" value="{{searchKeyword}}" />
+      <view class="cancel-btn" bindtap="hideSearch">取消</view>
+    </view>
+  </view>
+
+  <!-- 标签切换 -->
+  <view class="tab-section">
+    <view class="tab-item {{activeTab === 'friends' ? 'active' : ''}}" data-tab="friends" bindtap="switchTab">
+      <text class="tab-text">我的好友</text>
+      <text class="tab-count">({{friendsList.length}})</text>
+    </view>
+    <view class="tab-item {{activeTab === 'requests' ? 'active' : ''}}" data-tab="requests" bindtap="switchTab">
+      <text class="tab-text">好友申请</text>
+      <text class="tab-count" wx:if="{{requestsList.length > 0}}">({{requestsList.length}})</text>
+    </view>
+    <view class="tab-item {{activeTab === 'nearby' ? 'active' : ''}}" data-tab="nearby" bindtap="switchTab">
+      <text class="tab-text">附近的人</text>
+    </view>
+  </view>
+
+  <!-- 内容区域 -->
+  <scroll-view class="content-scroll" scroll-y="true" refresher-enabled="true" bindrefresherrefresh="onRefresh" refresher-triggered="{{refreshing}}">
+    
+    <!-- 我的好友列表 -->
+    <view class="friends-list" wx:if="{{activeTab === 'friends'}}">
+      <view class="friend-item" wx:for="{{displayFriends}}" wx:key="id" bindtap="viewFriendProfile" data-friend="{{item}}">
+        <view class="friend-avatar">
+          <image src="{{item.avatar}}" class="avatar-img" mode="aspectFill" />
+          <view class="online-status {{item.isOnline ? 'online' : 'offline'}}"></view>
+        </view>
+        <view class="friend-info">
+          <view class="friend-name">{{item.name}}</view>
+          <view class="friend-desc">{{item.petInfo}}</view>
+          <view class="friend-owner">陪同：{{item.owner}}</view>
+          <view class="friend-bio" wx:if="{{item.status}}">{{item.status}}</view>
+          <view class="friend-tags" wx:if="{{item.tags && item.tags.length}}">
+            <view class="tag-pill" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</view>
+          </view>
+          <view class="friend-meta">
+            <text class="last-active">{{item.lastActive}}</text>
+            <text class="distance">距离{{item.distance}}</text>
+          </view>
+          <text class="friend-window" wx:if="{{item.walkWindow}}">最佳时间：{{item.walkWindow}}</text>
+        </view>
+        <view class="friend-actions">
+          <view class="action-btn chat-btn" bindtap="startChat" data-friend="{{item}}" catchtap="stopPropagation">
+            <text class="action-icon">💬</text>
+          </view>
+          <view class="action-btn more-btn" bindtap="showFriendActions" data-friend="{{item}}" catchtap="stopPropagation">
+            <text class="action-icon">⋯</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <view class="empty-state" wx:if="{{displayFriends.length === 0}}">
+        <view class="empty-icon">👥</view>
+        <text class="empty-text">{{searchKeyword ? '没有找到相关好友' : '还没有遛狗好友'}}</text>
+        <text class="empty-desc" wx:if="{{!searchKeyword}}">快去地图上找找附近的遛狗用户吧！</text>
+      </view>
+    </view>
+
+    <!-- 好友申请列表 -->
+    <view class="requests-list" wx:if="{{activeTab === 'requests'}}">
+      <view class="request-item" wx:for="{{requestsList}}" wx:key="id">
+        <view class="request-avatar">
+          <image src="{{item.avatar}}" class="avatar-img" mode="aspectFill" />
+        </view>
+        <view class="request-info">
+          <view class="request-name">{{item.name}}</view>
+          <view class="request-desc">{{item.petInfo}}</view>
+          <view class="request-message" wx:if="{{item.message}}">
+            <text class="message-text">"{{item.message}}"</text>
+          </view>
+          <view class="request-tags" wx:if="{{item.tags && item.tags.length}}">
+            <view class="tag-pill small" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</view>
+          </view>
+          <view class="request-time">{{item.requestTime}}</view>
+        </view>
+        <view class="request-actions">
+          <button class="action-btn accept-btn" bindtap="acceptRequest" data-id="{{item.id}}">同意</button>
+          <button class="action-btn reject-btn" bindtap="rejectRequest" data-id="{{item.id}}">拒绝</button>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <view class="empty-state" wx:if="{{requestsList.length === 0}}">
+        <view class="empty-icon">📨</view>
+        <text class="empty-text">暂无好友申请</text>
+      </view>
+    </view>
+
+    <!-- 附近的人列表 -->
+    <view class="nearby-list" wx:if="{{activeTab === 'nearby'}}">
+      <view class="nearby-item" wx:for="{{nearbyPeople}}" wx:key="id">
+        <view class="nearby-avatar">
+          <image src="{{item.avatar}}" class="avatar-img" mode="aspectFill" />
+        </view>
+        <view class="nearby-info">
+          <view class="nearby-name">{{item.name}}</view>
+          <view class="nearby-desc">{{item.petInfo}}</view>
+          <view class="nearby-meta">
+            <text class="distance">距离{{item.distance}}</text>
+            <text class="last-active">{{item.lastActive}}</text>
+          </view>
+          <view class="nearby-tags" wx:if="{{item.tags && item.tags.length}}">
+            <view class="tag-pill small" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</view>
+          </view>
+        </view>
+        <view class="nearby-actions">
+          <button class="add-friend-btn {{item.isFriend ? 'added' : ''}}" 
+                  bindtap="{{item.isFriend ? 'removeFriend' : 'addFriend'}}" 
+                  data-user="{{item}}"
+                  disabled="{{item.requesting}}">
+            {{item.isFriend ? '已添加' : (item.requesting ? '已申请' : '加好友')}}
+          </button>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <view class="empty-state" wx:if="{{nearbyPeople.length === 0}}">
+        <view class="empty-icon">📍</view>
+        <text class="empty-text">附近暂无其他用户</text>
+        <text class="empty-desc">试试刷新或者去其他地方遛狗吧！</text>
+      </view>
+    </view>
+
+  </scroll-view>
+
+  <!-- 好友操作弹窗 -->
+  <view class="friend-actions-modal {{showActionsModal ? 'show' : ''}}" bindtap="hideActionsModal">
+    <view class="actions-content" catchtap="stopPropagation">
+      <view class="actions-header">
+        <image src="{{selectedFriend.avatar}}" class="modal-avatar" />
+        <text class="modal-name">{{selectedFriend.name}}</text>
+      </view>
+      <view class="actions-list">
+        <view class="action-item" bindtap="viewProfile">
+          <text class="action-icon">👤</text>
+          <text class="action-text">查看资料</text>
+        </view>
+        <view class="action-item" bindtap="startChat">
+          <text class="action-icon">💬</text>
+          <text class="action-text">发送消息</text>
+        </view>
+        <view class="action-item" bindtap="inviteMeetup">
+          <text class="action-icon">📅</text>
+          <text class="action-text">约遛狗</text>
+        </view>
+        <view class="action-item danger" bindtap="deleteFriend">
+          <text class="action-icon">🗑️</text>
+          <text class="action-text">删除好友</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 遮罩层 -->
+  <view class="overlay {{showActionsModal ? 'show' : ''}}" bindtap="hideActionsModal"></view>
+</view> 

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地图 - PawMate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        .map-container {
+            background: linear-gradient(45deg, #4CAF50, #2196F3);
+            position: relative;
+            overflow: hidden;
+            height: calc(100vh - 60px);
+            min-height: 500px;
+        }
+        .user-marker {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            z-index: 10;
+        }
+        .user-marker:hover {
+            transform: scale(1.1);
+        }
+        .floating-card {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            z-index: 20;
+        }
+        .floating-card.show {
+            transform: translateY(0);
+        }
+        .dog-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            object-fit: cover;
+        }
+        .location-btn {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: #fff;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            cursor: pointer;
+            z-index: 15;
+        }
+        .filter-btn {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            background: #fff;
+            border-radius: 20px;
+            padding: 8px 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 15;
+        }
+        .map-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 导航栏 -->
+    <div class="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-100">
+        <h1 class="text-xl font-bold text-gray-900">附近的朋友</h1>
+        <div class="flex items-center gap-3">
+            <button class="p-2 rounded-full bg-blue-50 text-blue-600">
+                <i class="fas fa-search text-lg"></i>
+            </button>
+            <button class="p-2 rounded-full bg-green-50 text-green-600">
+                <i class="fas fa-plus text-lg"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 地图区域 -->
+    <div class="map-container">
+        <!-- 地图背景图 -->
+        <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=800&h=600" 
+             alt="地图" class="map-bg">
+        
+        <!-- 筛选按钮 -->
+        <div class="filter-btn">
+            <i class="fas fa-filter text-blue-600"></i>
+            <span class="text-sm font-medium text-gray-700">筛选</span>
+        </div>
+
+        <!-- 定位按钮 -->
+        <div class="location-btn">
+            <i class="fas fa-location-arrow text-blue-600 text-lg"></i>
+        </div>
+
+        <!-- 用户标记点 -->
+        <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=100&h=100" 
+             alt="用户1" class="user-marker" style="top: 120px; left: 80px;" onclick="showUserCard(1)">
+        
+        <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=100&h=100" 
+             alt="用户2" class="user-marker" style="top: 200px; right: 100px;" onclick="showUserCard(2)">
+        
+        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=100&h=100" 
+             alt="用户3" class="user-marker" style="bottom: 150px; left: 120px;" onclick="showUserCard(3)">
+        
+        <img src="https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?auto=format&fit=crop&w=100&h=100" 
+             alt="用户4" class="user-marker" style="bottom: 200px; right: 80px;" onclick="showUserCard(4)">
+
+        <!-- 浮动卡片 -->
+        <div id="userCard" class="floating-card">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <img id="cardAvatar" src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=100&h=100" 
+                         alt="狗狗头像" class="dog-avatar">
+                    <div>
+                        <h3 id="cardName" class="font-bold text-gray-900">金毛 Lucky</h3>
+                        <p id="cardOwner" class="text-sm text-gray-600">主人：张小姐</p>
+                    </div>
+                </div>
+                <button onclick="hideUserCard()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="flex items-center gap-2 mb-3">
+                <i class="fas fa-map-marker-alt text-blue-600 text-xs"></i>
+                <span id="cardDistance" class="text-sm text-gray-600">距离你 150 米</span>
+                <i class="fas fa-clock text-green-600 text-xs ml-2"></i>
+                <span class="text-sm text-green-600">2分钟前活跃</span>
+            </div>
+            
+            <p id="cardStatus" class="text-sm text-gray-700 mb-4">正在公园遛狗，寻找玩伴一起玩耍～</p>
+            
+            <div class="flex gap-2">
+                <button class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg font-medium">
+                    <i class="fas fa-comments mr-2"></i>打招呼
+                </button>
+                <button class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg font-medium">
+                    <i class="fas fa-calendar-plus mr-2"></i>约遛狗
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const userCards = {
+            1: {
+                avatar: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=100&h=100",
+                name: "金毛 Lucky",
+                owner: "主人：张小姐",
+                distance: "距离你 150 米",
+                status: "正在公园遛狗，寻找玩伴一起玩耍～"
+            },
+            2: {
+                avatar: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=100&h=100",
+                name: "哈士奇 Max",
+                owner: "主人：李先生",
+                distance: "距离你 200 米",
+                status: "刚到小区花园，希望找个朋友一起跑步"
+            },
+            3: {
+                avatar: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=100&h=100",
+                name: "柯基 Bella",
+                owner: "主人：王小姐",
+                distance: "距离你 320 米",
+                status: "在河边散步，欢迎一起来玩水！"
+            },
+            4: {
+                avatar: "https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?auto=format&fit=crop&w=100&h=100",
+                name: "泰迪 Coco",
+                owner: "主人：陈先生",
+                distance: "距离你 80 米",
+                status: "刚学会新技能，想要展示给朋友们看"
+            }
+        };
+
+        function showUserCard(userId) {
+            const card = document.getElementById('userCard');
+            const data = userCards[userId];
+            
+            document.getElementById('cardAvatar').src = data.avatar;
+            document.getElementById('cardName').textContent = data.name;
+            document.getElementById('cardOwner').textContent = data.owner;
+            document.getElementById('cardDistance').textContent = data.distance;
+            document.getElementById('cardStatus').textContent = data.status;
+            
+            card.classList.add('show');
+        }
+
+        function hideUserCard() {
+            const card = document.getElementById('userCard');
+            card.classList.remove('show');
+        }
+
+        // 页面加载完成后显示第一个用户卡片作为演示
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                showUserCard(1);
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

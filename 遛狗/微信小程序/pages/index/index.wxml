@@ -1,0 +1,8 @@
+<!-- pages/index/index.wxml -->
+<view class="index-container">
+  <view class="welcome">
+    <text class="app-name">🐕 PawMate</text>
+    <text class="app-desc">遛狗社交小程序</text>
+    <button class="btn" bindtap="goToMap">进入地图</button>
+  </view>
+</view>

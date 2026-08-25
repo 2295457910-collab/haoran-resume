@@ -1,0 +1,211 @@
+<!-- pages/profile/profile.wxml -->
+<view class="profile-container">
+  <!-- 用户信息区域 -->
+  <view class="user-info-section">
+    <view class="user-avatar" bindtap="changeAvatar">
+      <image src="{{userInfo.avatar}}" class="avatar" mode="aspectFill"></image>
+      <view class="avatar-edit-hint">
+        <text class="edit-hint-text">点击更换</text>
+      </view>
+    </view>
+    <view class="user-details">
+      <text class="username">{{displayName}}</text>
+      <text class="user-desc">{{userInfo.description}}</text>
+    </view>
+    <view class="edit-btn" bindtap="editProfile">
+      <text class="edit-text">编辑</text>
+    </view>
+  </view>
+
+  <!-- 统计信息 -->
+  <view class="stats-section">
+    <view class="stat-item">
+      <text class="stat-number">{{stats.meetupCount}}</text>
+      <text class="stat-label">约遛狗次数</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-number">{{stats.friendCount}}</text>
+      <text class="stat-label">遛狗好友</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-number">{{stats.activeDays}}</text>
+      <text class="stat-label">活跃天数</text>
+    </view>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="menu-section">
+    <view class="menu-item" bindtap="goToMeetupHistory">
+      <view class="menu-icon">📅</view>
+      <text class="menu-text">约遛狗记录</text>
+      <view class="menu-arrow">></view>
+    </view>
+    
+    <view class="menu-item" bindtap="goToFriends">
+      <view class="menu-icon">👥</view>
+      <text class="menu-text">遛狗好友</text>
+      <view class="menu-arrow">></view>
+    </view>
+    
+    <view class="menu-item" bindtap="goToSettings">
+      <view class="menu-icon">⚙️</view>
+      <text class="menu-text">设置</text>
+      <view class="menu-arrow">></view>
+    </view>
+  </view>
+
+  <!-- 快捷功能 -->
+  <view class="quick-actions">
+    <view class="action-item" bindtap="goToPost">
+      <view class="action-icon">📝</view>
+      <text class="action-text">发布动态</text>
+    </view>
+    <view class="action-item" bindtap="goToFriends">
+      <view class="action-icon">👥</view>
+      <text class="action-text">遛狗好友</text>
+    </view>
+    <view class="action-item" bindtap="goToMeetupHistory">
+      <view class="action-icon">📅</view>
+      <text class="action-text">约遛狗记录</text>
+    </view>
+  </view>
+
+  <!-- 底部信息 -->
+  <view class="footer-section">
+    <text class="footer-text">PawMate 遛狗社交 v1.0</text>
+    <text class="footer-desc">让每一次遛狗都充满乐趣</text>
+  </view>
+</view>
+
+<!-- 编辑个人资料弹窗 -->
+<view class="modal-overlay" wx:if="{{showEditModal}}" bindtap="hideEditModal">
+  <view class="edit-modal" catchtap="stopPropagation">
+    <!-- 弹窗标题 -->
+    <view class="modal-header">
+      <text class="modal-title">编辑个人资料</text>
+      <view class="modal-close" bindtap="hideEditModal">✕</view>
+    </view>
+    
+    <!-- 编辑内容 -->
+    <view class="modal-content">
+      <!-- 头像编辑 -->
+      <view class="edit-section">
+        <view class="edit-label">头像</view>
+        <view class="avatar-edit" bindtap="changeAvatar">
+          <image src="{{editData.avatar}}" class="edit-avatar" mode="aspectFill"></image>
+          <view class="avatar-change-btn">
+            <text class="change-text">更换头像</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 昵称编辑 -->
+      <view class="edit-section">
+        <view class="edit-label">昵称</view>
+        <input class="edit-input" 
+               placeholder="请输入您的昵称" 
+               value="{{editData.name}}"
+               bindinput="onNameChange"
+               maxlength="20"/>
+      </view>
+      
+      <!-- 宠物信息编辑 -->
+      <view class="edit-section">
+        <view class="edit-label">宠物信息</view>
+        <view class="pet-info-edit">
+          <view class="pet-field">
+            <text class="field-label">宠物品种</text>
+            <input class="edit-input" 
+                   placeholder="如：金毛犬、拉布拉多等" 
+                   value="{{editData.petBreed}}"
+                   bindinput="onPetBreedChange"
+                   maxlength="15"/>
+          </view>
+          <view class="pet-field">
+            <text class="field-label">宠物名字</text>
+            <input class="edit-input" 
+                   placeholder="如：Max、Lucky等" 
+                   value="{{editData.petName}}"
+                   bindinput="onPetNameChange"
+                   maxlength="15"/>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 个人简介编辑 -->
+      <view class="edit-section">
+        <view class="edit-label">个人简介</view>
+        <textarea class="edit-textarea" 
+                  placeholder="介绍一下自己和宠物的故事..." 
+                  value="{{editData.description}}"
+                  bindinput="onDescriptionChange"
+                  maxlength="100"/>
+      </view>
+      
+      <!-- 隐私设置 -->
+      <view class="edit-section">
+        <view class="edit-label">隐私设置</view>
+        <view class="privacy-settings">
+          <view class="privacy-item">
+            <text class="privacy-text">显示宠物品种</text>
+            <switch class="privacy-switch" 
+                    checked="{{editData.showPetBreed}}"
+                    bindchange="onShowPetBreedChange"/>
+          </view>
+          <view class="privacy-item">
+            <text class="privacy-text">显示宠物名字</text>
+            <switch class="privacy-switch" 
+                    checked="{{editData.showPetName}}"
+                    bindchange="onShowPetNameChange"/>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 展示预览 -->
+      <view class="edit-section">
+        <view class="edit-label">展示预览</view>
+        <view class="display-preview">
+          <text class="preview-title">其他用户看到的信息：</text>
+          <view class="preview-info">
+            <text class="preview-name">{{previewDisplayName}}</text>
+            <text class="preview-desc">{{editData.description || '这个人很懒，什么都没留下...'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 弹窗底部 -->
+    <view class="modal-footer">
+      <view class="modal-btn cancel-btn" bindtap="hideEditModal">取消</view>
+      <view class="modal-btn confirm-btn" bindtap="saveProfile">保存</view>
+    </view>
+  </view>
+</view>
+
+<!-- 头像选择弹窗 -->
+<view class="modal-overlay" wx:if="{{showAvatarModal}}" bindtap="hideAvatarModal">
+  <view class="avatar-modal" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">选择头像</text>
+      <view class="modal-close" bindtap="hideAvatarModal">✕</view>
+    </view>
+    
+    <view class="avatar-options">
+      <view class="avatar-option" bindtap="selectFromAlbum">
+        <view class="option-icon">📱</view>
+        <text class="option-text">从相册选择</text>
+      </view>
+      <view class="avatar-option" bindtap="takePhoto">
+        <view class="option-icon">📷</view>
+        <text class="option-text">拍照</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 新手引导 -->
+<guide-modal 
+  show="{{showProfileGuide}}" 
+  guide-type="profile" 
+  bind:complete="onGuideComplete">
+</guide-modal>

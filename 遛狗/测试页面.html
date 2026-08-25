@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>弹窗测试页面 - PawMate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+        
+        .app-container {
+            width: 393px;
+            height: 852px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .map-container {
+            height: 100%;
+            position: relative;
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 50%, #a5d6a7 100%);
+        }
+        
+        .floating-card {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .floating-card.show {
+            transform: translateY(0);
+        }
+        
+        .map-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .map-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .user-marker {
+            background: white;
+            border: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            cursor: pointer;
+            position: absolute;
+        }
+        
+        .test-info {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            max-width: 300px;
+            z-index: 10000;
+        }
+        
+        .test-buttons {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10000;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-info">
+        <h3><i class="fas fa-bug"></i> 弹窗测试说明</h3>
+        <p>1. 点击地图上的用户头像显示弹窗</p>
+        <p>2. 可以通过以下方式关闭弹窗：</p>
+        <p>• 点击弹窗右上角的 ✕ 按钮</p>
+        <p>• 点击弹窗外的遮罩区域</p>
+        <p>• 按 ESC 键</p>
+        <p>3. 使用下方按钮进行测试</p>
+    </div>
+
+    <div class="app-container">
+        <div class="map-container">
+            <!-- 模拟地图内容 -->
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #4ade80; font-size: 18px; font-weight: bold;">
+                <i class="fas fa-map-marked-alt text-4xl mb-4"></i>
+                <div>附近遛狗地图</div>
+                <div style="font-size: 14px; opacity: 0.7; margin-top: 8px;">点击用户头像查看详情</div>
+            </div>
+            
+            <!-- 用户标记 -->
+            <div class="user-marker" style="top: 200px; left: 100px;" onclick="showUserCard(testUsers[0])">
+                <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=34&h=34" 
+                     style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover;">
+            </div>
+            
+            <div class="user-marker" style="top: 350px; right: 80px;" onclick="showUserCard(testUsers[1])">
+                <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=34&h=34" 
+                     style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover;">
+            </div>
+            
+            <div class="user-marker" style="bottom: 200px; left: 150px;" onclick="showUserCard(testUsers[2])">
+                <img src="https://images.unsplash.com/photo-1592194996308-7b43878e84a6?auto=format&fit=crop&w=34&h=34" 
+                     style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover;">
+            </div>
+            
+            <!-- 地图遮罩 -->
+            <div id="mapOverlay" class="map-overlay" onclick="hideUserCard()"></div>
+            
+            <!-- 用户信息弹窗 -->
+            <div id="userCard" class="floating-card">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                        <img id="cardAvatar" src="" alt="狗狗头像" class="w-12 h-12 rounded-full object-cover">
+                        <div>
+                            <h3 id="cardName" class="font-bold text-gray-900"></h3>
+                            <p id="cardOwner" class="text-sm text-gray-600"></p>
+                        </div>
+                    </div>
+                    <button onclick="hideUserCard()" class="text-gray-400 hover:text-gray-600 p-2 -mr-2" title="关闭">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+                
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fas fa-map-marker-alt text-blue-600 text-xs"></i>
+                    <span id="cardDistance" class="text-sm text-gray-600"></span>
+                    <i class="fas fa-clock text-green-600 text-xs ml-2"></i>
+                    <span class="text-sm text-green-600">2分钟前活跃</span>
+                </div>
+                
+                <p id="cardStatus" class="text-sm text-gray-700 mb-4"></p>
+                
+                <div class="flex gap-2">
+                    <button class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg font-medium" onclick="testAction('打招呼')">
+                        <i class="fas fa-comments mr-2"></i>打招呼
+                    </button>
+                    <button class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg font-medium" onclick="testAction('约遛狗')">
+                        <i class="fas fa-calendar-plus mr-2"></i>约遛狗
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-buttons">
+        <button class="btn btn-primary" onclick="showUserCard(testUsers[0])">显示弹窗</button>
+        <button class="btn btn-danger" onclick="hideUserCard()">关闭弹窗</button>
+        <button class="btn btn-success" onclick="testAllFeatures()">测试所有功能</button>
+    </div>
+
+    <script>
+        // 测试数据
+        const testUsers = [
+            {
+                name: '金毛 Lucky',
+                owner: '张小姐',
+                avatar: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=100&h=100',
+                distance: '150 米',
+                status: '正在公园遛狗，寻找玩伴一起玩耍～'
+            },
+            {
+                name: '柴犬 Max',
+                owner: '李先生',
+                avatar: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=100&h=100',
+                distance: '280 米',
+                status: '刚吃完晚饭，想找朋友一起散步消化~'
+            },
+            {
+                name: '边牧 Bella',
+                owner: '王女士',
+                avatar: 'https://images.unsplash.com/photo-1592194996308-7b43878e84a6?auto=format&fit=crop&w=100&h=100',
+                distance: '320 米',
+                status: '在小区楼下，可以一起遛弯儿哦！'
+            }
+        ];
+
+        // 显示用户卡片
+        function showUserCard(user) {
+            const card = document.getElementById('userCard');
+            const overlay = document.getElementById('mapOverlay');
+            
+            // 更新卡片内容
+            document.getElementById('cardAvatar').src = user.avatar;
+            document.getElementById('cardName').textContent = user.name;
+            document.getElementById('cardOwner').textContent = `主人：${user.owner}`;
+            document.getElementById('cardDistance').textContent = `距离你 ${user.distance}`;
+            document.getElementById('cardStatus').textContent = user.status;
+            
+            // 显示卡片和遮罩
+            card.classList.add('show');
+            if (overlay) {
+                overlay.classList.add('show');
+            }
+            
+            console.log('✅ 显示用户卡片:', user.name);
+        }
+        
+        // 隐藏用户卡片
+        function hideUserCard() {
+            const card = document.getElementById('userCard');
+            const overlay = document.getElementById('mapOverlay');
+            
+            // 隐藏卡片和遮罩
+            card.classList.remove('show');
+            if (overlay) {
+                overlay.classList.remove('show');
+            }
+            
+            console.log('✅ 隐藏用户卡片');
+        }
+        
+        // 测试操作
+        function testAction(action) {
+            alert(`测试操作: ${action}`);
+            hideUserCard();
+        }
+        
+        // 测试所有功能
+        function testAllFeatures() {
+            console.log('🧪 开始测试所有功能...');
+            
+            // 测试显示
+            showUserCard(testUsers[0]);
+            
+            setTimeout(() => {
+                // 测试隐藏
+                hideUserCard();
+                console.log('✅ 所有功能测试完成');
+                alert('✅ 弹窗功能测试完成！\n\n请手动测试：\n1. 点击用户头像\n2. 点击关闭按钮\n3. 点击外部区域\n4. 按ESC键');
+            }, 2000);
+        }
+        
+        // 键盘事件监听（ESC键关闭弹窗）
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const userCard = document.getElementById('userCard');
+                if (userCard && userCard.classList.contains('show')) {
+                    hideUserCard();
+                    e.preventDefault();
+                    console.log('✅ ESC键关闭弹窗');
+                }
+            }
+        });
+        
+        // 防止弹窗内部点击关闭弹窗
+        document.getElementById('userCard').addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+        
+        console.log('🚀 测试页面加载完成');
+        console.log('📱 请在手机或桌面浏览器中测试弹窗功能');
+    </script>
+</body>
+</html> 

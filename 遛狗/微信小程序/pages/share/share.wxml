@@ -1,0 +1,253 @@
+<!-- pages/share/share.wxml -->
+<view class="share-container">
+  <!-- 顶部搜索栏 -->
+  <view class="search-header">
+    <view class="search-box">
+      <view class="search-icon">🔍</view>
+      <input class="search-input" placeholder="搜索萌宠内容..." bindinput="onSearchInput" />
+    </view>
+    <view class="header-actions">
+      <view class="scan-btn" bindtap="scanPetInfo">
+        <text class="scan-icon">📱</text>
+      </view>
+      <view class="camera-btn" bindtap="showPostOptions">
+        <text class="camera-icon">📷</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 智能推荐横幅 -->
+  <view class="smart-banner" wx:if="{{showSmartBanner}}">
+    <view class="banner-content">
+      <view class="banner-icon">🎯</view>
+      <view class="banner-text">
+        <text class="banner-title">个性化推荐</text>
+        <text class="banner-desc">基于你的宠物品种为你推荐相关内容</text>
+      </view>
+      <view class="banner-close" bindtap="closeBanner">✕</view>
+    </view>
+  </view>
+
+  <!-- 功能导航卡片 -->
+  <view class="feature-cards">
+    <scroll-view class="cards-scroll" scroll-x="true">
+      <view class="feature-card" bindtap="goToKnowledge">
+        <view class="card-icon">📚</view>
+        <text class="card-title">养宠百科</text>
+        <text class="card-desc">专业知识</text>
+      </view>
+      <view class="feature-card" bindtap="goToHealthCheck">
+        <view class="card-icon">🏥</view>
+        <text class="card-title">健康检测</text>
+        <text class="card-desc">AI识别</text>
+      </view>
+      <view class="feature-card" bindtap="goToBreedGuide">
+        <view class="card-icon">🐕</view>
+        <text class="card-title">品种指南</text>
+        <text class="card-desc">详细介绍</text>
+      </view>
+      <view class="feature-card" bindtap="goToTraining">
+        <view class="card-icon">🎾</view>
+        <text class="card-title">训练技巧</text>
+        <text class="card-desc">行为训练</text>
+      </view>
+      <view class="feature-card" bindtap="goToNutrition">
+        <view class="card-icon">🥘</view>
+        <text class="card-title">营养指南</text>
+        <text class="card-desc">科学喂养</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 分类标签 -->
+  <scroll-view class="category-tabs" scroll-x="true">
+    <view class="tab-item {{activeCategory === 'all' ? 'active' : ''}}" data-category="all" bindtap="switchCategory">
+      <text class="tab-icon">🌟</text>
+      <text class="tab-text">推荐</text>
+    </view>
+    <view class="tab-item {{activeCategory === 'photo' ? 'active' : ''}}" data-category="photo" bindtap="switchCategory">
+      <text class="tab-icon">📸</text>
+      <text class="tab-text">萌照</text>
+    </view>
+    <view class="tab-item {{activeCategory === 'video' ? 'active' : ''}}" data-category="video" bindtap="switchCategory">
+      <text class="tab-icon">🎬</text>
+      <text class="tab-text">视频</text>
+    </view>
+    <view class="tab-item {{activeCategory === 'knowledge' ? 'active' : ''}}" data-category="knowledge" bindtap="switchCategory">
+      <text class="tab-icon">📚</text>
+      <text class="tab-text">知识</text>
+    </view>
+    <view class="tab-item {{activeCategory === 'health' ? 'active' : ''}}" data-category="health" bindtap="switchCategory">
+      <text class="tab-icon">🏥</text>
+      <text class="tab-text">健康</text>
+    </view>
+    <view class="tab-item {{activeCategory === 'tips' ? 'active' : ''}}" data-category="tips" bindtap="switchCategory">
+      <text class="tab-icon">💡</text>
+      <text class="tab-text">心得</text>
+    </view>
+  </scroll-view>
+
+  <!-- 专业知识专区 -->
+  <view class="knowledge-section" wx:if="{{activeCategory === 'knowledge' || activeCategory === 'all'}}">
+    <view class="section-header">
+      <text class="section-title">🎓 专业知识</text>
+      <text class="section-more" bindtap="viewAllKnowledge">查看更多 ></text>
+    </view>
+    <scroll-view class="knowledge-scroll" scroll-x="true">
+      <view class="knowledge-item" wx:for="{{knowledgeList}}" wx:key="id" bindtap="viewKnowledge" data-item="{{item}}">
+        <image src="{{item.cover}}" class="knowledge-cover" />
+        <view class="knowledge-badge">{{item.category}}</view>
+        <view class="knowledge-info">
+          <text class="knowledge-title">{{item.title}}</text>
+          <text class="knowledge-author">by {{item.expert}}</text>
+          <view class="knowledge-stats">
+            <text class="read-count">👁 {{item.readCount}}</text>
+            <text class="like-count">❤️ {{item.likeCount}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 瀑布流内容 -->
+  <scroll-view class="content-scroll" scroll-y="true" bindscrolltolower="loadMore" refresher-enabled="true" bindrefresherrefresh="onRefresh" refresher-triggered="{{refreshing}}">
+    <view class="waterfall-container">
+      <!-- 左列 -->
+      <view class="waterfall-column">
+        <view class="post-item" wx:for="{{leftPosts}}" wx:key="id" bindtap="viewPost" data-post="{{item}}">
+          <view class="post-media">
+            <image wx:if="{{item.type === 'photo'}}" src="{{item.cover}}" class="post-image" mode="widthFix" />
+            <view wx:if="{{item.type === 'video'}}" class="video-container">
+              <image src="{{item.cover}}" class="post-image" mode="widthFix" />
+              <view class="video-play-btn">
+                <view class="play-btn-inner">
+                  <view class="play-triangle"></view>
+                </view>
+                <view class="play-ripple"></view>
+              </view>
+              <view class="video-duration">{{item.duration}}</view>
+            </view>
+            <view wx:if="{{item.type === 'knowledge'}}" class="knowledge-post">
+              <image src="{{item.cover}}" class="post-image" mode="widthFix" />
+              <view class="knowledge-tag">{{item.knowledgeType}}</view>
+            </view>
+          </view>
+          <view class="post-info">
+            <text class="post-title">{{item.title}}</text>
+            <view class="post-tags" wx:if="{{item.tags}}">
+              <text class="tag-item" wx:for="{{item.tags}}" wx:key="*this">#{{item}}</text>
+            </view>
+            <view class="post-meta">
+              <view class="author-info">
+                <image src="{{item.author.avatar}}" class="author-avatar" />
+                <text class="author-name">{{item.author.name}}</text>
+                <view class="author-badge" wx:if="{{item.author.isExpert}}">专家</view>
+              </view>
+              <view class="post-stats">
+                <text class="like-count">❤️ {{item.likeCount}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 右列 -->
+      <view class="waterfall-column">
+        <view class="post-item" wx:for="{{rightPosts}}" wx:key="id" bindtap="viewPost" data-post="{{item}}">
+          <view class="post-media">
+            <image wx:if="{{item.type === 'photo'}}" src="{{item.cover}}" class="post-image" mode="widthFix" />
+            <view wx:if="{{item.type === 'video'}}" class="video-container">
+              <image src="{{item.cover}}" class="post-image" mode="widthFix" />
+              <view class="video-play-btn">
+                <view class="play-btn-inner">
+                  <view class="play-triangle"></view>
+                </view>
+                <view class="play-ripple"></view>
+              </view>
+              <view class="video-duration">{{item.duration}}</view>
+            </view>
+            <view wx:if="{{item.type === 'knowledge'}}" class="knowledge-post">
+              <image src="{{item.cover}}" class="post-image" mode="widthFix" />
+              <view class="knowledge-tag">{{item.knowledgeType}}</view>
+            </view>
+          </view>
+          <view class="post-info">
+            <text class="post-title">{{item.title}}</text>
+            <view class="post-tags" wx:if="{{item.tags}}">
+              <text class="tag-item" wx:for="{{item.tags}}" wx:key="*this">#{{item}}</text>
+            </view>
+            <view class="post-meta">
+              <view class="author-info">
+                <image src="{{item.author.avatar}}" class="author-avatar" />
+                <text class="author-name">{{item.author.name}}</text>
+                <view class="author-badge" wx:if="{{item.author.isExpert}}">专家</view>
+              </view>
+              <view class="post-stats">
+                <text class="like-count">❤️ {{item.likeCount}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{hasMore}}">
+      <view class="loading-spinner"></view>
+      <text class="load-text">加载更多精彩内容...</text>
+    </view>
+    <view class="no-more" wx:else>
+      <view class="no-more-icon">🐾</view>
+      <text class="no-more-text">已经到底啦，去发布新内容吧！</text>
+    </view>
+  </scroll-view>
+
+  <!-- 发布选项弹窗 -->
+  <view class="post-options {{showPostOptions ? 'show' : ''}}" bindtap="hidePostOptions">
+    <view class="options-content" catchtap="stopPropagation">
+      <view class="options-header">
+        <text class="options-title">分享萌宠生活</text>
+        <view class="close-btn" bindtap="hidePostOptions">
+          <text class="close-icon">✕</text>
+        </view>
+      </view>
+      <view class="options-list">
+        <view class="option-item" bindtap="postPhoto">
+          <view class="option-icon photo-icon">📸</view>
+          <view class="option-info">
+            <text class="option-title">拍照分享</text>
+            <text class="option-desc">记录萌宠可爱瞬间</text>
+          </view>
+          <view class="option-arrow">></view>
+        </view>
+        <view class="option-item" bindtap="postVideo">
+          <view class="option-icon video-icon">🎬</view>
+          <view class="option-info">
+            <text class="option-title">视频分享</text>
+            <text class="option-desc">分享萌宠搞笑视频</text>
+          </view>
+          <view class="option-arrow">></view>
+        </view>
+        <view class="option-item" bindtap="postKnowledge">
+          <view class="option-icon knowledge-icon">��</view>
+          <view class="option-info">
+            <text class="option-title">知识分享</text>
+            <text class="option-desc">分享专业养宠知识</text>
+          </view>
+          <view class="option-arrow">></view>
+        </view>
+        <view class="option-item" bindtap="postStory">
+          <view class="option-icon story-icon">📝</view>
+          <view class="option-info">
+            <text class="option-title">图文故事</text>
+            <text class="option-desc">分享养宠心得体会</text>
+          </view>
+          <view class="option-arrow">></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 遮罩层 -->
+  <view class="overlay {{showPostOptions ? 'show' : ''}}" bindtap="hidePostOptions"></view>
+</view> 

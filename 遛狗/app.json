@@ -1,0 +1,55 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/discover/discover",
+    "pages/messages/messages",
+    "pages/shop/shop",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "navigationBarTitleText": "PawMate - 遛狗社交",
+    "navigationBarBackgroundColor": "#3b82f6",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f8fafc",
+    "backgroundTextStyle": "light",
+    "enablePullDownRefresh": true
+  },
+  "tabBar": {
+    "color": "#6b7280",
+    "selectedColor": "#3b82f6",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "地图"
+      },
+      {
+        "pagePath": "pages/discover/discover",
+        "text": "发现"
+      },
+      {
+        "pagePath": "pages/messages/messages",
+        "text": "消息"
+      },
+      {
+        "pagePath": "pages/shop/shop",
+        "text": "商城"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "您的位置信息将用于显示附近的遛狗伙伴"
+    }
+  },
+  "requiredBackgroundModes": ["location"],
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}
+

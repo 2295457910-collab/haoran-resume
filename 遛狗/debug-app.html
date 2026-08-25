@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>PawMate Debug - 遛狗社交App</title>
+    
+    <style>
+        body { margin: 0; padding: 0; background: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .debug-panel { position: fixed; top: 0; left: 0; right: 0; background: #000; color: #0f0; font-family: monospace; font-size: 12px; padding: 10px; z-index: 99999; max-height: 150px; overflow-y: auto; }
+        .debug-toggle { position: fixed; top: 10px; right: 10px; background: #000; color: #0f0; border: none; padding: 5px 10px; border-radius: 5px; z-index: 100000; cursor: pointer; }
+        .app-container { margin-top: 40px; height: calc(100vh - 40px); display: flex; flex-direction: column; max-width: 390px; margin-left: auto; margin-right: auto; background: white; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .map-container { flex: 1; position: relative; background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 50%, #a5d6a7 100%); }
+        .user-marker { background: white; border: 3px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: pointer; position: absolute; }
+        .floating-card { position: absolute; bottom: 20px; left: 20px; right: 20px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 16px; padding: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); transform: translateY(100%); transition: transform 0.3s ease; z-index: 1000; }
+        .floating-card.show { transform: translateY(0); }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: none; align-items: end; justify-content: center; }
+        .modal.show { display: flex; }
+        .modal-content { background: white; border-radius: 20px 20px 0 0; width: 100%; max-width: 400px; margin: 20px; transform: translateY(100%); transition: transform 0.3s ease; }
+        .modal-content.show { transform: translateY(0); }
+        .btn { background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-weight: 600; }
+        .btn:hover { background: #2563eb; }
+        .btn-secondary { background: #6b7280; }
+        .btn-secondary:hover { background: #4b5563; }
+    </style>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Debug Panel -->
+    <div id="debugPanel" class="debug-panel">
+        <div>🐕 PawMate Debug Console - 实时日志</div>
+        <div id="debugLog"></div>
+    </div>
+    <button class="debug-toggle" onclick="toggleDebug()">Debug</button>
+
+    <!-- Main App -->
+    <div class="app-container">
+        <!-- Header -->
+        <div style="height: 60px; background: white; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid #e5e7eb;">
+            <h1 class="text-xl font-bold text-gray-900">附近的朋友</h1>
+            <div class="flex gap-2">
+                <button class="p-2 rounded-full bg-blue-50 text-blue-600" onclick="debugLog('搜索按钮点击')">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button class="p-2 rounded-full bg-red-50 text-red-600" onclick="forceReset()" title="强制重置">
+                    <i class="fas fa-refresh"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Map Area -->
+        <div class="map-container" id="mapContainer">
+            <!-- 模拟街道 -->
+            <div style="position: absolute; top: 30%; left: 0; right: 0; height: 3px; background: #666; opacity: 0.3;"></div>
+            <div style="position: absolute; top: 60%; left: 0; right: 0; height: 3px; background: #666; opacity: 0.3;"></div>
+            <div style="position: absolute; left: 25%; top: 0; bottom: 0; width: 3px; background: #666; opacity: 0.3;"></div>
+            <div style="position: absolute; left: 70%; top: 0; bottom: 0; width: 3px; background: #666; opacity: 0.3;"></div>
+            
+            <!-- 模拟公园 -->
+            <div style="position: absolute; top: 20%; left: 15%; width: 30px; height: 30px; background: #4caf50; border-radius: 50%; opacity: 0.6;"></div>
+            <div style="position: absolute; top: 70%; left: 60%; width: 25px; height: 25px; background: #4caf50; border-radius: 50%; opacity: 0.6;"></div>
+            
+            <!-- 用户标记 -->
+            <div class="user-marker" style="left: 45%; top: 35%;" onclick="showUserCard('Lucky', '张小姐', 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=100&h=100')">
+                <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=100&h=100" style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover;">
+            </div>
+            <div class="user-marker" style="left: 25%; top: 65%;" onclick="showUserCard('Max', '李先生', 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=100&h=100')">
+                <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=100&h=100" style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover;">
+            </div>
+            <div class="user-marker" style="left: 60%; top: 45%;" onclick="showUserCard('Bella', '王女士', 'https://images.unsplash.com/photo-1561037404-61cd46aa615b?auto=format&fit=crop&w=100&h=100')">
+                <img src="https://images.unsplash.com/photo-1561037404-61cd46aa615b?auto=format&fit=crop&w=100&h=100" style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover;">
+            </div>
+            
+            <!-- 当前用户 -->
+            <div class="user-marker" style="left: 50%; top: 50%; background: #3b82f6;">
+                <i class="fas fa-user text-white"></i>
+            </div>
+        </div>
+
+        <!-- User Info Card -->
+        <div id="userCard" class="floating-card">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <img id="cardAvatar" src="" alt="狗狗头像" class="w-12 h-12 rounded-full object-cover">
+                    <div>
+                        <h3 id="cardName" class="font-bold text-gray-900"></h3>
+                        <p id="cardOwner" class="text-sm text-gray-600"></p>
+                    </div>
+                </div>
+                <button onclick="hideUserCard()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="flex items-center gap-2 mb-3">
+                <i class="fas fa-map-marker-alt text-blue-600 text-xs"></i>
+                <span class="text-sm text-gray-600">距离你 150 米</span>
+                <i class="fas fa-clock text-green-600 text-xs ml-2"></i>
+                <span class="text-sm text-green-600">2分钟前活跃</span>
+            </div>
+            
+            <p class="text-sm text-gray-700 mb-4">正在公园遛狗，寻找玩伴一起玩耍～</p>
+            
+            <div class="flex gap-2">
+                <button class="btn flex-1" onclick="debugLog('开始聊天'); showToast('聊天功能开发中')">
+                    <i class="fas fa-comments mr-2"></i>打招呼
+                </button>
+                <button class="btn flex-1" onclick="debugLog('点击约遛狗'); showMeetupModal()">
+                    <i class="fas fa-calendar-plus mr-2"></i>约遛狗
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Meetup Modal -->
+    <div id="meetupModal" class="modal">
+        <div class="modal-content" id="meetupModalContent">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold">约遛狗</h3>
+                    <button onclick="closeMeetupModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">选择时间</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="date" id="meetupDate" class="p-3 border border-gray-200 rounded-xl">
+                        <input type="time" id="meetupTime" class="p-3 border border-gray-200 rounded-xl">
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">备注信息</label>
+                    <textarea id="meetupNote" rows="3" class="w-full p-3 border border-gray-200 rounded-xl" placeholder="要不要一起吃个饭？"></textarea>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button class="btn-secondary flex-1" onclick="closeMeetupModal()">取消</button>
+                    <button class="btn flex-1" onclick="sendMeetupRequest()">
+                        <i class="fas fa-paper-plane mr-2"></i>发送邀请
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" style="position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 12px 24px; border-radius: 20px; opacity: 0; transition: opacity 0.3s; z-index: 10000;"></div>
+
+    <script>
+        let debugVisible = true;
+        let currentUserData = null;
+
+        function debugLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('debugLog');
+            logElement.innerHTML = `[${timestamp}] ${message}<br>` + logElement.innerHTML;
+            console.log(`[PawMate Debug] ${message}`);
+            
+            // 保持最多50条日志
+            const lines = logElement.innerHTML.split('<br>');
+            if (lines.length > 50) {
+                logElement.innerHTML = lines.slice(0, 50).join('<br>');
+            }
+        }
+
+        function toggleDebug() {
+            const panel = document.getElementById('debugPanel');
+            debugVisible = !debugVisible;
+            panel.style.display = debugVisible ? 'block' : 'none';
+            
+            const container = document.querySelector('.app-container');
+            if (debugVisible) {
+                container.style.marginTop = '40px';
+                container.style.height = 'calc(100vh - 40px)';
+            } else {
+                container.style.marginTop = '0';
+                container.style.height = '100vh';
+            }
+        }
+
+        function showUserCard(name, owner, avatar) {
+            debugLog(`显示用户卡片: ${name} (${owner})`);
+            
+            try {
+                currentUserData = { name, owner, avatar };
+                
+                document.getElementById('cardName').textContent = name;
+                document.getElementById('cardOwner').textContent = `主人：${owner}`;
+                document.getElementById('cardAvatar').src = avatar;
+                
+                const card = document.getElementById('userCard');
+                card.classList.add('show');
+                
+                debugLog('用户卡片显示成功');
+            } catch (error) {
+                debugLog(`显示用户卡片失败: ${error.message}`);
+            }
+        }
+
+        function hideUserCard() {
+            debugLog('隐藏用户卡片');
+            
+            try {
+                const card = document.getElementById('userCard');
+                card.classList.remove('show');
+                currentUserData = null;
+                debugLog('用户卡片隐藏成功');
+            } catch (error) {
+                debugLog(`隐藏用户卡片失败: ${error.message}`);
+            }
+        }
+
+        function showMeetupModal() {
+            debugLog('显示约遛狗弹窗');
+            
+            try {
+                if (!currentUserData) {
+                    debugLog('警告: 没有当前用户数据');
+                    return;
+                }
+                
+                // 设置默认值
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                document.getElementById('meetupDate').value = tomorrow.toISOString().split('T')[0];
+                document.getElementById('meetupTime').value = '18:00';
+                
+                // 显示弹窗
+                const modal = document.getElementById('meetupModal');
+                const content = document.getElementById('meetupModalContent');
+                
+                modal.classList.add('show');
+                setTimeout(() => {
+                    content.classList.add('show');
+                }, 50);
+                
+                debugLog('约遛狗弹窗显示成功');
+            } catch (error) {
+                debugLog(`显示约遛狗弹窗失败: ${error.message}`);
+            }
+        }
+
+        function closeMeetupModal() {
+            debugLog('关闭约遛狗弹窗');
+            
+            try {
+                const modal = document.getElementById('meetupModal');
+                const content = document.getElementById('meetupModalContent');
+                
+                content.classList.remove('show');
+                setTimeout(() => {
+                    modal.classList.remove('show');
+                    debugLog('约遛狗弹窗关闭成功');
+                }, 300);
+                
+            } catch (error) {
+                debugLog(`关闭约遛狗弹窗失败: ${error.message}`);
+                forceReset();
+            }
+        }
+
+        function sendMeetupRequest() {
+            debugLog('发送约遛狗邀请');
+            
+            try {
+                const date = document.getElementById('meetupDate').value;
+                const time = document.getElementById('meetupTime').value;
+                const note = document.getElementById('meetupNote').value;
+                
+                if (!date || !time) {
+                    showToast('请选择约遛狗的时间');
+                    return;
+                }
+                
+                debugLog(`邀请详情: ${date} ${time}, 备注: ${note}`);
+                
+                closeMeetupModal();
+                showToast('约遛狗邀请已发送！');
+                
+                // 模拟3秒后收到回复
+                setTimeout(() => {
+                    const responses = ['同意', '拒绝'];
+                    const response = responses[Math.floor(Math.random() * responses.length)];
+                    debugLog(`收到回复: ${response}`);
+                    showToast(`${currentUserData?.owner || '对方'}${response}了你的约遛狗邀请`);
+                }, 3000);
+                
+            } catch (error) {
+                debugLog(`发送邀请失败: ${error.message}`);
+                showToast('发送失败，请重试');
+            }
+        }
+
+        function showToast(message) {
+            debugLog(`显示提示: ${message}`);
+            
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.opacity = '1';
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 2000);
+        }
+
+        function forceReset() {
+            debugLog('执行强制重置');
+            
+            try {
+                // 隐藏所有弹窗
+                document.querySelectorAll('.modal').forEach(modal => {
+                    modal.classList.remove('show');
+                });
+                
+                document.querySelectorAll('.modal-content').forEach(content => {
+                    content.classList.remove('show');
+                });
+                
+                // 隐藏用户卡片
+                hideUserCard();
+                
+                // 重置数据
+                currentUserData = null;
+                
+                debugLog('强制重置完成');
+                showToast('界面已重置');
+                
+            } catch (error) {
+                debugLog(`强制重置失败: ${error.message}`);
+                // 最后手段：刷新页面
+                location.reload();
+            }
+        }
+
+        // 点击弹窗背景关闭
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                debugLog('点击背景关闭弹窗');
+                closeMeetupModal();
+            }
+        });
+
+        // ESC键关闭弹窗
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                debugLog('按ESC键关闭弹窗');
+                closeMeetupModal();
+                hideUserCard();
+            }
+        });
+
+        // 全局错误处理
+        window.addEventListener('error', (e) => {
+            debugLog(`全局错误: ${e.error?.message || e.message}`);
+            forceReset();
+        });
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            debugLog('PawMate Debug版本已加载');
+            debugLog('点击地图上的狗狗头像开始测试');
+        });
+    </script>
+</body>
+</html> 

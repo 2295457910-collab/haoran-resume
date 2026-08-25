@@ -1,0 +1,167 @@
+<!-- pages/post/post.wxml -->
+<view class="post-container">
+  <!-- 顶部导航 -->
+  <view class="post-header">
+    <view class="header-left" bindtap="goBack">
+      <text class="back-icon">←</text>
+      <text class="back-text">取消</text>
+    </view>
+    <text class="header-title">{{postTypeText}}</text>
+    <view class="header-right">
+      <button class="publish-btn {{canPublish ? 'active' : ''}}" bindtap="publishPost" disabled="{{!canPublish}}">
+        发布
+      </button>
+    </view>
+  </view>
+
+  <!-- 内容编辑区域 -->
+  <scroll-view class="content-area" scroll-y="true">
+    <!-- 图片/视频预览 -->
+    <view class="media-section" wx:if="{{postType !== 'story'}}">
+      <!-- 图片预览 -->
+      <view class="image-grid" wx:if="{{postType === 'photo' && selectedImages.length > 0}}">
+        <view class="image-item" wx:for="{{selectedImages}}" wx:key="index">
+          <image src="{{item}}" class="preview-image" mode="aspectFill" />
+          <view class="remove-btn" bindtap="removeImage" data-index="{{index}}">✕</view>
+        </view>
+        <view class="add-image-btn" wx:if="{{selectedImages.length < 9}}" bindtap="addMoreImages">
+          <text class="add-icon">+</text>
+          <text class="add-text">添加图片</text>
+        </view>
+      </view>
+
+      <!-- 视频预览 -->
+      <view class="video-preview" wx:if="{{postType === 'video' && selectedVideo}}">
+        <video src="{{selectedVideo}}" class="preview-video" controls></video>
+        <view class="video-info">
+          <text class="video-duration">时长: {{videoDuration}}</text>
+          <view class="change-video-btn" bindtap="changeVideo">更换视频</view>
+        </view>
+      </view>
+
+      <!-- 添加媒体按钮 -->
+      <view class="add-media-section" wx:if="{{(postType === 'photo' && selectedImages.length === 0) || (postType === 'video' && !selectedVideo)}}">
+        <view class="add-media-btn" bindtap="selectMedia">
+          <view class="media-icon">{{postType === 'photo' ? '📸' : '🎬'}}</view>
+          <text class="media-text">{{postType === 'photo' ? '添加图片' : '添加视频'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 文字内容编辑 -->
+    <view class="text-section">
+      <textarea 
+        class="content-textarea"
+        placeholder="{{textPlaceholder}}"
+        value="{{contentText}}"
+        bindinput="onContentInput"
+        maxlength="2000"
+        auto-height
+        show-confirm-bar="{{false}}"
+      ></textarea>
+      <view class="char-count">{{contentText.length}}/2000</view>
+    </view>
+
+    <!-- 标签选择 -->
+    <view class="tags-section">
+      <view class="section-title">
+        <text class="title-text">🏷️ 添加标签</text>
+        <text class="title-desc">最多选择5个标签</text>
+      </view>
+      
+      <!-- 热门标签 -->
+      <view class="hot-tags">
+        <view class="tag-item {{selectedTags.includes(item) ? 'selected' : ''}}" 
+              wx:for="{{hotTags}}" 
+              wx:key="*this"
+              data-tag="{{item}}"
+              bindtap="toggleTag">
+          <text class="tag-text">{{item}}</text>
+        </view>
+      </view>
+
+      <!-- 自定义标签 -->
+      <view class="custom-tag-input">
+        <input 
+          class="tag-input"
+          placeholder="输入自定义标签..."
+          value="{{customTag}}"
+          bindinput="onTagInput"
+          bindconfirm="addCustomTag"
+        />
+        <view class="add-tag-btn" bindtap="addCustomTag" wx:if="{{customTag.trim()}}">
+          <text class="add-tag-text">添加</text>
+        </view>
+      </view>
+
+      <!-- 已选标签 -->
+      <view class="selected-tags" wx:if="{{selectedTags.length > 0}}">
+        <text class="selected-title">已选标签：</text>
+        <view class="selected-tag-list">
+          <view class="selected-tag" wx:for="{{selectedTags}}" wx:key="*this" data-tag="{{item}}" bindtap="removeTag">
+            <text class="selected-tag-text">{{item}}</text>
+            <text class="remove-tag-icon">✕</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 位置信息 -->
+    <view class="location-section">
+      <view class="section-title">
+        <text class="title-text">📍 添加位置</text>
+      </view>
+      <view class="location-content" bindtap="selectLocation">
+        <view class="location-info" wx:if="{{selectedLocation}}">
+          <text class="location-name">{{selectedLocation.name}}</text>
+          <text class="location-address">{{selectedLocation.address}}</text>
+        </view>
+        <view class="location-placeholder" wx:else>
+          <text class="placeholder-text">选择位置</text>
+        </view>
+        <text class="location-arrow">></text>
+      </view>
+    </view>
+
+    <!-- 隐私设置 -->
+    <view class="privacy-section">
+      <view class="section-title">
+        <text class="title-text">👁️ 谁可以看</text>
+      </view>
+      <view class="privacy-options">
+        <view class="privacy-option {{privacy === 'public' ? 'selected' : ''}}" data-privacy="public" bindtap="setPrivacy">
+          <view class="option-icon">🌍</view>
+          <view class="option-info">
+            <text class="option-title">公开</text>
+            <text class="option-desc">所有人都可以看到</text>
+          </view>
+          <view class="option-radio {{privacy === 'public' ? 'checked' : ''}}"></view>
+        </view>
+        <view class="privacy-option {{privacy === 'friends' ? 'selected' : ''}}" data-privacy="friends" bindtap="setPrivacy">
+          <view class="option-icon">👥</view>
+          <view class="option-info">
+            <text class="option-title">仅好友</text>
+            <text class="option-desc">只有遛狗好友可以看到</text>
+          </view>
+          <view class="option-radio {{privacy === 'friends' ? 'checked' : ''}}"></view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部工具栏 -->
+  <view class="bottom-toolbar">
+    <view class="toolbar-item" bindtap="addEmoji">
+      <text class="toolbar-icon">😊</text>
+      <text class="toolbar-text">表情</text>
+    </view>
+    <view class="toolbar-item" bindtap="addMention">
+      <text class="toolbar-icon">@</text>
+      <text class="toolbar-text">提及</text>
+    </view>
+    <view class="toolbar-item" bindtap="saveDraft">
+      <text class="toolbar-icon">💾</text>
+      <text class="toolbar-text">草稿</text>
+    </view>
+  </view>
+</view> 

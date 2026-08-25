@@ -1,0 +1,210 @@
+<!-- pages/meetup/meetup.wxml -->
+<view class="meetup-container">
+  <!-- 页面头部 -->
+  <view class="header">
+    <view class="target-user">
+      <image src="{{targetUser.avatar}}" class="avatar avatar-md" mode="aspectFill"></image>
+      <view class="user-info">
+        <text class="user-name">{{targetUser.name}}</text>
+        <text class="user-owner">主人：{{targetUser.owner}}</text>
+      </view>
+    </view>
+    <text class="header-title">约遛狗</text>
+  </view>
+
+  <!-- 表单内容 -->
+  <scroll-view class="form-container" scroll-y="true">
+    <!-- 日期选择 -->
+    <view class="form-section">
+      <text class="section-title">📅 选择日期</text>
+      <view class="date-picker">
+        <picker 
+          mode="date" 
+          value="{{selectedDate}}" 
+          start="{{today}}"
+          end="{{maxDate}}"
+          bindchange="onDateChange"
+        >
+          <view class="picker-display">
+            <text class="picker-text">{{selectedDate || '请选择日期'}}</text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 时间选择 -->
+    <view class="form-section">
+      <text class="section-title">🕐 选择时间</text>
+      
+      <!-- 快捷时间选择 -->
+      <view class="quick-times">
+        <view 
+          class="quick-time {{selectedQuickTime === 'morning' ? 'active' : ''}}"
+          data-time="morning"
+          bindtap="selectQuickTime"
+        >
+          <text class="time-label">早晨</text>
+          <text class="time-value">09:00</text>
+        </view>
+        <view 
+          class="quick-time {{selectedQuickTime === 'afternoon' ? 'active' : ''}}"
+          data-time="afternoon"
+          bindtap="selectQuickTime"
+        >
+          <text class="time-label">下午</text>
+          <text class="time-value">15:00</text>
+        </view>
+        <view 
+          class="quick-time {{selectedQuickTime === 'evening' ? 'active' : ''}}"
+          data-time="evening"
+          bindtap="selectQuickTime"
+        >
+          <text class="time-label">傍晚</text>
+          <text class="time-value">18:00</text>
+        </view>
+      </view>
+
+      <!-- 自定义时间选择 -->
+      <view class="custom-time">
+        <picker 
+          mode="time" 
+          value="{{selectedTime}}" 
+          bindchange="onTimeChange"
+        >
+          <view class="picker-display">
+            <text class="picker-text">{{selectedTime || '自定义时间'}}</text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 地点选择 -->
+    <view class="form-section">
+      <text class="section-title">📍 选择地点</text>
+      <view class="location-options">
+        <view 
+          class="location-option {{selectedLocation === 'park' ? 'active' : ''}}"
+          data-location="park"
+          bindtap="selectLocation"
+        >
+          <text class="location-icon">🏞️</text>
+          <text class="location-text">附近公园</text>
+        </view>
+        <view 
+          class="location-option {{selectedLocation === 'community' ? 'active' : ''}}"
+          data-location="community"
+          bindtap="selectLocation"
+        >
+          <text class="location-icon">🏠</text>
+          <text class="location-text">小区周边</text>
+        </view>
+        <view 
+          class="location-option {{selectedLocation === 'riverside' ? 'active' : ''}}"
+          data-location="riverside"
+          bindtap="selectLocation"
+        >
+          <text class="location-icon">🌊</text>
+          <text class="location-text">河边步道</text>
+        </view>
+        <view 
+          class="location-option {{selectedLocation === 'other' ? 'active' : ''}}"
+          data-location="other"
+          bindtap="selectLocation"
+        >
+          <text class="location-icon">📍</text>
+          <text class="location-text">其他地点</text>
+        </view>
+      </view>
+      
+      <!-- 自定义地点输入 -->
+      <view class="custom-location" wx:if="{{selectedLocation === 'other'}}">
+        <input 
+          class="location-input"
+          placeholder="请输入具体地点"
+          value="{{customLocation}}"
+          bindinput="onLocationInput"
+        />
+      </view>
+    </view>
+
+    <!-- 备注信息 -->
+    <view class="form-section">
+      <text class="section-title">💭 备注信息</text>
+      
+      <!-- 快捷备注 -->
+      <view class="quick-notes">
+        <view 
+          class="quick-note"
+          data-note="一起玩耍吧！"
+          bindtap="selectQuickNote"
+        >一起玩耍吧！</view>
+        <view 
+          class="quick-note"
+          data-note="顺便一起晚饭？"
+          bindtap="selectQuickNote"
+        >顺便一起晚饭？</view>
+        <view 
+          class="quick-note"
+          data-note="可以交流养狗经验"
+          bindtap="selectQuickNote"
+        >可以交流养狗经验</view>
+        <view 
+          class="quick-note"
+          data-note="我家狗狗很友善"
+          bindtap="selectQuickNote"
+        >我家狗狗很友善</view>
+      </view>
+
+      <!-- 自定义备注 -->
+      <view class="custom-note">
+        <textarea 
+          class="note-textarea"
+          placeholder="添加更多备注信息..."
+          value="{{note}}"
+          bindinput="onNoteInput"
+          maxlength="200"
+          show-confirm-bar="{{false}}"
+          auto-height
+        ></textarea>
+        <text class="char-count">{{note.length}}/200</text>
+      </view>
+    </view>
+
+    <!-- 预览信息 -->
+    <view class="form-section preview-section">
+      <text class="section-title">📋 预览信息</text>
+      <view class="preview-card">
+        <view class="preview-item">
+          <text class="preview-label">约遛狗对象：</text>
+          <text class="preview-value">{{targetUser.name}} ({{targetUser.owner}})</text>
+        </view>
+        <view class="preview-item">
+          <text class="preview-label">约定时间：</text>
+          <text class="preview-value">{{selectedDate}} {{selectedTime}}</text>
+        </view>
+        <view class="preview-item">
+          <text class="preview-label">约定地点：</text>
+          <text class="preview-value">{{locationText}}</text>
+        </view>
+        <view class="preview-item" wx:if="{{note}}">
+          <text class="preview-label">备注信息：</text>
+          <text class="preview-value">{{note}}</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部按钮 -->
+  <view class="footer">
+    <button class="btn btn-secondary" bindtap="goBack">取消</button>
+    <button 
+      class="btn btn-primary" 
+      bindtap="sendMeetupRequest"
+      disabled="{{!canSubmit}}"
+    >
+      发送邀请
+    </button>
+  </view>
+</view> 

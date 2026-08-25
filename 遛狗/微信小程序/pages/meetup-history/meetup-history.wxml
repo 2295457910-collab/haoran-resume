@@ -1,0 +1,262 @@
+<view class="history-container">
+  <!-- 页面头部 -->
+  <view class="header">
+    <view class="header-left" bindtap="goBack">
+      <text class="back-icon">←</text>
+    </view>
+    <text class="header-title">约遛狗记录</text>
+    <view class="header-right">
+      <text class="stats-btn" bindtap="showStatsDetail">统计</text>
+    </view>
+  </view>
+
+  <!-- 统计概览卡片 -->
+  <view class="stats-overview">
+    <view class="stats-card">
+      <view class="stats-grid">
+        <view class="stat-item">
+          <text class="stat-number">{{stats.totalCount}}</text>
+          <text class="stat-label">总约遛狗</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-number">{{stats.activeDays}}</text>
+          <text class="stat-label">活跃天数</text>
+        </view>
+      </view>
+      
+      <!-- 最近活跃度 -->
+      <view class="recent-activity">
+        <text class="activity-title">🔥 最近7天活跃度</text>
+        <view class="activity-chart">
+          <view class="chart-bar" wx:for="{{stats.weeklyActivity}}" wx:key="day" style="height: {{item.height}}%">
+            <text class="bar-label">{{item.day}}</text>
+            <view class="bar-fill" style="background: {{item.count > 0 ? '#4CAF50' : '#E0E0E0'}}"></view>
+            <text class="bar-count">{{item.count}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 筛选标签 -->
+  <view class="filter-tabs">
+    <scroll-view class="tabs-scroll" scroll-x="true">
+      <view class="filter-tab {{activeFilter === 'all' ? 'active' : ''}}" 
+            data-filter="all" 
+            bindtap="switchFilter">
+        <text class="tab-text">全部</text>
+        <text class="tab-count">{{counts.all}}</text>
+      </view>
+      <view class="filter-tab {{activeFilter === 'accepted' ? 'active' : ''}}" 
+            data-filter="accepted" 
+            bindtap="switchFilter">
+        <text class="tab-text">已完成</text>
+        <text class="tab-count">{{counts.accepted}}</text>
+      </view>
+      <view class="filter-tab {{activeFilter === 'pending' ? 'active' : ''}}" 
+            data-filter="pending" 
+            bindtap="switchFilter">
+        <text class="tab-text">进行中</text>
+        <text class="tab-count">{{counts.pending}}</text>
+      </view>
+      <view class="filter-tab {{activeFilter === 'rejected' ? 'active' : ''}}" 
+            data-filter="rejected" 
+            bindtap="switchFilter">
+        <text class="tab-text">已拒绝</text>
+        <text class="tab-count">{{counts.rejected}}</text>
+      </view>
+      <view class="filter-tab {{activeFilter === 'cancelled' ? 'active' : ''}}" 
+            data-filter="cancelled" 
+            bindtap="switchFilter">
+        <text class="tab-text">已取消</text>
+        <text class="tab-count">{{counts.cancelled}}</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 记录列表 -->
+  <scroll-view 
+    class="history-list" 
+    scroll-y="true"
+    refresher-enabled="{{true}}"
+    refresher-triggered="{{refreshing}}"
+    bindrefresherrefresh="onRefresh"
+    bindscrolltolower="loadMore"
+  >
+    <!-- 空状态 -->
+    <view wx:if="{{filteredHistory.length === 0}}" class="empty-state">
+      <view class="empty-icon">
+        <text class="icon-emoji">{{getEmptyIcon(activeFilter)}}</text>
+      </view>
+      <text class="empty-title">{{getEmptyTitle(activeFilter)}}</text>
+      <text class="empty-desc">{{getEmptyDesc(activeFilter)}}</text>
+      <button class="empty-btn" bindtap="goToMap">去地图找朋友</button>
+    </view>
+
+    <!-- 历史记录项 -->
+    <view wx:for="{{filteredHistory}}" wx:key="id" class="history-item">
+      <!-- 日期分组标题 -->
+      <view wx:if="{{item.showDateHeader}}" class="date-header">
+        <text class="date-text">{{item.dateHeaderText}}</text>
+      </view>
+
+      <!-- 记录内容 -->
+      <view class="history-card" bindtap="viewDetail" data-item="{{item}}">
+        <view class="card-header">
+          <view class="user-info">
+            <image src="{{item.targetAvatar}}" class="avatar" mode="aspectFill"></image>
+            <view class="user-details">
+              <text class="user-name">{{item.targetUser}}</text>
+              <text class="user-subtitle">主人：{{item.targetOwner}}</text>
+            </view>
+          </view>
+          <view class="status-badge {{item.status}}">
+            <text class="status-text">{{getStatusText(item.status)}}</text>
+          </view>
+        </view>
+
+        <view class="card-content">
+          <view class="meetup-info">
+            <view class="info-row">
+              <text class="info-icon">📅</text>
+              <text class="info-text">{{item.date}} {{item.time}}</text>
+            </view>
+            <view class="info-row">
+              <text class="info-icon">📍</text>
+              <text class="info-text">{{item.location}}</text>
+            </view>
+            <view class="info-row" wx:if="{{item.note}}">
+              <text class="info-icon">💭</text>
+              <text class="info-text">{{item.note}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="card-footer">
+          <text class="time-text">{{item.relativeTime}}</text>
+          <view class="action-buttons">
+            <text class="action-btn" data-item="{{item}}" bindtap="chatWithUser" catchtap="stopPropagation">💬 聊天</text>
+            <text wx:if="{{item.status === 'accepted'}}" 
+                  class="action-btn primary" 
+                  data-item="{{item}}" 
+                  bindtap="meetAgain" 
+                  catchtap="stopPropagation">🔄 再次约遛狗</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view wx:if="{{hasMore && filteredHistory.length > 0}}" class="load-more">
+      <text class="load-text">{{loading ? '加载中...' : '上拉加载更多'}}</text>
+    </view>
+  </scroll-view>
+
+  <!-- 详情弹窗 -->
+  <view class="detail-modal {{showDetail ? 'show' : ''}}" bindtap="hideDetail">
+    <view class="detail-content" catchtap="stopPropagation">
+      <view class="detail-header">
+        <text class="detail-title">约遛狗详情</text>
+        <view class="detail-close" bindtap="hideDetail">✕</view>
+      </view>
+      
+      <view class="detail-body" wx:if="{{selectedItem}}">
+        <view class="detail-user">
+          <image src="{{selectedItem.targetAvatar}}" class="detail-avatar" mode="aspectFill"></image>
+          <view class="detail-user-info">
+            <text class="detail-user-name">{{selectedItem.targetUser}}</text>
+            <text class="detail-user-owner">主人：{{selectedItem.targetOwner}}</text>
+          </view>
+          <view class="detail-status {{selectedItem.status}}">
+            {{getStatusText(selectedItem.status)}}
+          </view>
+        </view>
+
+        <view class="detail-info">
+          <view class="detail-row">
+            <text class="detail-label">约定时间</text>
+            <text class="detail-value">{{selectedItem.date}} {{selectedItem.time}}</text>
+          </view>
+          <view class="detail-row">
+            <text class="detail-label">约定地点</text>
+            <text class="detail-value">{{selectedItem.location}}</text>
+          </view>
+          <view class="detail-row" wx:if="{{selectedItem.note}}">
+            <text class="detail-label">备注信息</text>
+            <text class="detail-value">{{selectedItem.note}}</text>
+          </view>
+          <view class="detail-row">
+            <text class="detail-label">邀请类型</text>
+            <text class="detail-value">{{selectedItem.type === 'sent' ? '我发起的邀请' : '对方发起的邀请'}}</text>
+          </view>
+          <view class="detail-row">
+            <text class="detail-label">创建时间</text>
+            <text class="detail-value">{{selectedItem.createdAt}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="detail-footer">
+        <button class="detail-btn secondary" bindtap="hideDetail">关闭</button>
+        <button wx:if="{{selectedItem.status === 'accepted'}}" 
+                class="detail-btn primary" 
+                bindtap="meetAgainFromDetail">再次约遛狗</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 统计详情弹窗 -->
+  <view class="stats-modal {{showStatsModal ? 'show' : ''}}" bindtap="hideStatsModal">
+    <view class="stats-content" catchtap="stopPropagation">
+      <view class="stats-header">
+        <text class="stats-title">📊 遛狗社交统计</text>
+        <view class="stats-close" bindtap="hideStatsModal">✕</view>
+      </view>
+      
+      <view class="stats-detail">
+        <view class="stats-section">
+          <text class="section-title">总体统计</text>
+          <view class="stats-list">
+            <view class="stats-item">
+              <text class="item-label">总邀请数</text>
+              <text class="item-value">{{stats.totalCount}}次</text>
+            </view>
+            <view class="stats-item">
+              <text class="item-label">活跃天数</text>
+              <text class="item-value">{{stats.activeDays}}天</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="stats-section">
+          <text class="section-title">最受欢迎时间</text>
+          <view class="time-stats">
+            <view class="time-item">
+              <text class="time-label">早晨 (6-12点)</text>
+              <view class="time-bar">
+                <view class="time-fill" style="width: {{stats.timePreference.morning}}%"></view>
+              </view>
+              <text class="time-percent">{{stats.timePreference.morning}}%</text>
+            </view>
+            <view class="time-item">
+              <text class="time-label">下午 (12-18点)</text>
+              <view class="time-bar">
+                <view class="time-fill" style="width: {{stats.timePreference.afternoon}}%"></view>
+              </view>
+              <text class="time-percent">{{stats.timePreference.afternoon}}%</text>
+            </view>
+            <view class="time-item">
+              <text class="time-label">傍晚 (18-24点)</text>
+              <view class="time-bar">
+                <view class="time-fill" style="width: {{stats.timePreference.evening}}%"></view>
+              </view>
+              <text class="time-percent">{{stats.timePreference.evening}}%</text>
+            </view>
+          </view>
+        </view>
+
+
+      </view>
+    </view>
+  </view>
+</view> 

@@ -1,0 +1,10 @@
+[project]
+entrypoint = "index.html"
+
+[dev]
+build = ["true"]
+run = ["python3", "-m", "http.server", "5000"]
+
+[deploy]
+build = ["true"]
+run = ["python3", "-m", "http.server", "5000"]

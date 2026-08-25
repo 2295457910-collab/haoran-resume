@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawMate - 遛狗社交</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+        
+        .app-container {
+            width: 393px;
+            height: 852px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        @media (min-width: 768px) {
+            .app-container {
+                margin: 20px auto;
+                border-radius: 24px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            }
+        }
+        
+        .status-bar {
+            height: 44px;
+            background: #000;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .nav-header {
+            height: 60px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .content-area {
+            height: calc(852px - 44px - 60px - 90px);
+            overflow: hidden;
+        }
+        
+        .map-container {
+            height: 100%;
+            position: relative;
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 50%, #a5d6a7 100%);
+        }
+        
+        .user-marker {
+            background: white;
+            border: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            cursor: pointer;
+            position: absolute;
+            transition: transform 0.2s ease;
+        }
+        
+        .user-marker:hover {
+            transform: scale(1.1);
+        }
+        
+        .floating-card {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .floating-card.show {
+            transform: translateY(0);
+        }
+        
+        .map-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .map-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 90px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding-top: 8px;
+            padding-bottom: 24px;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 10px;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-item.active {
+            color: #3b82f6;
+        }
+        
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .close-btn:hover {
+            background: rgba(0, 0, 0, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span id="currentTime">9:41</span>
+            <span>
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-three-quarters"></i>
+            </span>
+        </div>
+
+        <!-- Navigation Header -->
+        <div class="nav-header">
+            <h1 class="text-xl font-bold text-gray-900">附近的朋友</h1>
+            <div class="flex items-center gap-3">
+                <button class="p-2 rounded-full bg-blue-50 text-blue-600">
+                    <i class="fas fa-search text-lg"></i>
+                </button>
+                <button class="p-2 rounded-full bg-green-50 text-green-600" onclick="showToast('功能开发中...')">
+                    <i class="fas fa-plus text-lg"></i>
+                </button>
+                <button class="p-2 rounded-full bg-red-50 text-red-600" onclick="forceCloseAll()" title="应急重置">
+                    <i class="fas fa-refresh text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <div class="map-container">
+                <!-- 模拟地图背景 -->
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #4ade80; font-size: 18px; font-weight: bold; z-index: 1;">
+                    <i class="fas fa-map-marked-alt text-4xl mb-4"></i>
+                    <div>附近遛狗地图</div>
+                    <div style="font-size: 14px; opacity: 0.7; margin-top: 8px;">点击用户头像查看详情</div>
+                </div>
+                
+                <!-- 模拟街道和建筑 -->
+                <div style="position: absolute; top: 30%; left: 0; right: 0; height: 3px; background: #666; opacity: 0.3;"></div>
+                <div style="position: absolute; top: 60%; left: 0; right: 0; height: 3px; background: #666; opacity: 0.3;"></div>
+                <div style="position: absolute; left: 25%; top: 0; bottom: 0; width: 3px; background: #666; opacity: 0.3;"></div>
+                <div style="position: absolute; left: 70%; top: 0; bottom: 0; width: 3px; background: #666; opacity: 0.3;"></div>
+                
+                <!-- 用户标记 -->
+                <div class="user-marker" style="top: 150px; left: 80px;" onclick="showUserCard(users[0])">
+                    <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=34&h=34" 
+                         style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover;">
+                </div>
+                
+                <div class="user-marker" style="top: 250px; right: 100px;" onclick="showUserCard(users[1])">
+                    <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=34&h=34" 
+                         style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover;">
+                </div>
+                
+                <div class="user-marker" style="bottom: 150px; left: 120px;" onclick="showUserCard(users[2])">
+                    <img src="https://images.unsplash.com/photo-1592194996308-7b43878e84a6?auto=format&fit=crop&w=34&h=34" 
+                         style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover;">
+                </div>
+                
+                <!-- 地图遮罩 -->
+                <div id="mapOverlay" class="map-overlay" onclick="hideUserCard()"></div>
+                
+                <!-- 用户信息弹窗 -->
+                <div id="userCard" class="floating-card">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <img id="cardAvatar" src="" alt="狗狗头像" class="w-12 h-12 rounded-full object-cover">
+                            <div>
+                                <h3 id="cardName" class="font-bold text-gray-900"></h3>
+                                <p id="cardOwner" class="text-sm text-gray-600"></p>
+                            </div>
+                        </div>
+                        <button onclick="hideUserCard()" class="close-btn" title="关闭弹窗">
+                            <i class="fas fa-times text-gray-600"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="fas fa-map-marker-alt text-blue-600 text-xs"></i>
+                        <span id="cardDistance" class="text-sm text-gray-600"></span>
+                        <i class="fas fa-clock text-green-600 text-xs ml-2"></i>
+                        <span class="text-sm text-green-600">2分钟前活跃</span>
+                    </div>
+                    
+                    <p id="cardStatus" class="text-sm text-gray-700 mb-4"></p>
+                    
+                    <div class="flex gap-2">
+                        <button class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg font-medium" onclick="startChat()">
+                            <i class="fas fa-comments mr-2"></i>打招呼
+                        </button>
+                        <button class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg font-medium" onclick="createMeetup()">
+                            <i class="fas fa-calendar-plus mr-2"></i>约遛狗
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <i class="fas fa-map-marked-alt"></i>
+                <span>地图</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-compass"></i>
+                <span>发现</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-comments"></i>
+                <span>消息</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span>商城</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 消息 -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // 用户数据
+        const users = [
+            {
+                name: '金毛 Lucky',
+                owner: '张小姐',
+                avatar: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=100&h=100',
+                distance: '150 米',
+                status: '正在公园遛狗，寻找玩伴一起玩耍～'
+            },
+            {
+                name: '柴犬 Max',
+                owner: '李先生',
+                avatar: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=100&h=100',
+                distance: '280 米',
+                status: '刚吃完晚饭，想找朋友一起散步消化~'
+            },
+            {
+                name: '边牧 Bella',
+                owner: '王女士',
+                avatar: 'https://images.unsplash.com/photo-1592194996308-7b43878e84a6?auto=format&fit=crop&w=100&h=100',
+                distance: '320 米',
+                status: '在小区楼下，可以一起遛弯儿哦！'
+            }
+        ];
+
+        // 显示用户信息卡片
+        function showUserCard(user) {
+            console.log('显示用户卡片:', user.name);
+            
+            const card = document.getElementById('userCard');
+            const overlay = document.getElementById('mapOverlay');
+            
+            // 更新卡片内容
+            document.getElementById('cardAvatar').src = user.avatar;
+            document.getElementById('cardName').textContent = user.name;
+            document.getElementById('cardOwner').textContent = `主人：${user.owner}`;
+            document.getElementById('cardDistance').textContent = `距离你 ${user.distance}`;
+            document.getElementById('cardStatus').textContent = user.status;
+            
+            // 显示卡片和遮罩
+            card.classList.add('show');
+            overlay.classList.add('show');
+            
+            showToast(`查看 ${user.name} 的信息`);
+        }
+        
+        // 隐藏用户信息卡片
+        function hideUserCard() {
+            console.log('隐藏用户卡片');
+            
+            const card = document.getElementById('userCard');
+            const overlay = document.getElementById('mapOverlay');
+            
+            // 隐藏卡片和遮罩
+            card.classList.remove('show');
+            overlay.classList.remove('show');
+            
+            showToast('已关闭用户信息');
+        }
+        
+        // 开始聊天
+        function startChat() {
+            hideUserCard();
+            showToast('开始聊天功能开发中...');
+        }
+        
+        // 创建约遛狗
+        function createMeetup() {
+            hideUserCard();
+            showToast('约遛狗功能开发中...');
+        }
+        
+        // 强制关闭所有弹窗
+        function forceCloseAll() {
+            hideUserCard();
+            showToast('已重置界面');
+        }
+        
+        // 显示提示消息
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+        
+        // 更新时间
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('zh-CN', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false 
+            });
+            document.getElementById('currentTime').textContent = timeStr;
+        }
+        
+        // 键盘事件监听
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const userCard = document.getElementById('userCard');
+                if (userCard && userCard.classList.contains('show')) {
+                    hideUserCard();
+                    e.preventDefault();
+                }
+            }
+        });
+        
+        // 防止弹窗内部点击关闭弹窗
+        document.getElementById('userCard').addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            console.log('🚀 PawMate 简化版加载完成');
+            showToast('欢迎使用 PawMate！');
+        });
+    </script>
+</body>
+</html> 

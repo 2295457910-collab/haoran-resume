@@ -1,0 +1,121 @@
+<view class="page">
+  <view class="nav-bar">
+    <view class="nav-info">
+      <text class="nav-title">附近的狗友</text>
+      <text class="nav-subtitle">{{currentAddress}}</text>
+    </view>
+    <view class="nav-actions">
+      <view class="nav-btn" bindtap="openFilter">筛选</view>
+      <view class="nav-btn ghost" bindtap="moveToLocation">定位</view>
+    </view>
+  </view>
+
+  <map
+    id="map"
+    class="map"
+    longitude="{{longitude}}"
+    latitude="{{latitude}}"
+    scale="{{scale}}"
+    markers="{{markers}}"
+    show-location="true"
+    enable-zoom="true"
+    enable-scroll="true"
+    enable-rotate="false"
+    bindmarkertap="onMarkerTap">
+    <cover-view class="cover-badge">
+      <cover-view>在线狗友 {{users.length}}</cover-view>
+    </cover-view>
+    <cover-view class="cover-controls">
+      <cover-view class="control" bindtap="moveToLocation">📍</cover-view>
+      <cover-view class="control" bindtap="openFilter">🎚</cover-view>
+    </cover-view>
+  </map>
+
+  <view wx:if="{{!users.length}}" class="empty-state">
+    <text class="empty-title">附近暂时没有狗友</text>
+    <text class="empty-desc">尝试扩大筛选范围或稍后再来</text>
+  </view>
+
+  <view class="mask" wx:if="{{showUserCard}}" bindtap="hideCard"></view>
+  <view class="user-card {{showUserCard ? 'show' : ''}}" catchtap="stopTap">
+    <view class="card-header">
+      <image class="avatar" src="{{selectedUser.avatar}}" mode="aspectFill"></image>
+      <view class="card-title">
+        <text class="dog-name">{{selectedUser.name}}</text>
+        <text class="dog-owner">主人：{{selectedUser.owner}}</text>
+      </view>
+      <view class="close-btn" bindtap="hideCard">✕</view>
+    </view>
+
+    <view class="card-tags">
+      <view class="tag">{{selectedUser.breed}}</view>
+      <view class="tag">{{selectedUser.age}}</view>
+      <view class="tag">{{selectedUser.gender}}</view>
+      <view class="tag">{{selectedUser.distance}}</view>
+    </view>
+
+    <view class="card-status">
+      <text>{{selectedUser.statusText}}</text>
+      <text class="last-active">{{selectedUser.lastActive}}</text>
+    </view>
+
+    <view class="card-personality">
+      <text class="label">性格</text>
+      <text class="value">{{selectedUser.personality}}</text>
+    </view>
+
+    <view class="card-actions">
+      <button class="action friend" bindtap="toggleFriend">{{selectedUser.isFriend ? '✓ 已添加' : '+ 加狗友'}}</button>
+      <button class="action chat" bindtap="startChat">💬 打招呼</button>
+      <button class="action meetup" bindtap="createMeetup">📅 约遛狗</button>
+    </view>
+  </view>
+
+  <view class="mask" wx:if="{{filterVisible}}" bindtap="closeFilter"></view>
+  <view class="filter-panel" wx:if="{{filterVisible}}" catchtap="stopTap">
+    <view class="filter-header">
+      <text>智能筛选</text>
+      <view class="close-btn" bindtap="closeFilter">✕</view>
+    </view>
+    <view class="filter-section">
+      <text class="section-title">距离范围</text>
+      <view class="chip-group">
+        <block wx:for="{{filterOptions.distance}}" wx:key="value">
+          <view
+            class="chip {{filters.distance === item.value ? 'active' : ''}}"
+            data-group="distance"
+            data-value="{{item.value}}"
+            bindtap="selectFilter">{{item.label}}</view>
+        </block>
+      </view>
+    </view>
+    <view class="filter-section">
+      <text class="section-title">狗狗体型</text>
+      <view class="chip-group">
+        <block wx:for="{{filterOptions.size}}" wx:key="value">
+          <view
+            class="chip {{filters.size === item.value ? 'active' : ''}}"
+            data-group="size"
+            data-value="{{item.value}}"
+            bindtap="selectFilter">{{item.label}}</view>
+        </block>
+      </view>
+    </view>
+    <view class="filter-section">
+      <text class="section-title">活跃状态</text>
+      <view class="chip-group">
+        <block wx:for="{{filterOptions.status}}" wx:key="value">
+          <view
+            class="chip {{filters.status === item.value ? 'active' : ''}}"
+            data-group="status"
+            data-value="{{item.value}}"
+            bindtap="selectFilter">{{item.label}}</view>
+        </block>
+      </view>
+    </view>
+    <view class="filter-actions">
+      <view class="ghost" bindtap="resetFilter">重置</view>
+      <view class="primary" bindtap="applyFilter">应用筛选</view>
+    </view>
+  </view>
+</view>

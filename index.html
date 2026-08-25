@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>王浩然 · 产品经理 & 摄影爱好者</title>
+  <meta name="description" content="王浩然，香港中文大学信息管理硕士，多段产品实习（滴滴、字节、返利网），专注增长与数据驱动；摄影爱好者，擅长群像、古风、cosplay与闪光灯布光。" />
+
+  <!-- 字体：衬线大标题 + 无衬线正文 + 中文思源 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+  <!-- ============ 顶部导航 ============ -->
+  <header class="nav" id="nav">
+    <a href="#top" class="nav__brand">
+      <span class="nav__brand-mark">王</span>
+      <span class="nav__brand-text">HAORAN&nbsp;WANG</span>
+    </a>
+    <nav class="nav__menu" id="navMenu">
+      <a href="#about">关于</a>
+      <a href="#experience">经历</a>
+      <a href="#projects">项目</a>
+      <a href="#education">教育</a>
+      <a href="#skills">技能</a>
+      <a href="#hobbies">爱好</a>
+      <a href="#photography">影像</a>
+      <a href="#contact" class="nav__cta">联系</a>
+    </nav>
+    <button class="nav__toggle" id="navToggle" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <main id="top">
+
+    <!-- ============ Hero ============ -->
+    <section class="hero">
+      <div class="hero__inner">
+        <p class="hero__eyebrow reveal">
+          <span class="dot"></span> WANG HAORAN · 2027 届 · 应届生
+        </p>
+        <h1 class="hero__title">
+          <span class="reveal" data-d="0">洞察数据，</span>
+          <span class="reveal" data-d="1"><em>定格</em>光影。</span>
+        </h1>
+        <p class="hero__sub reveal" data-d="2">
+          产品经理 · 摄影爱好者 &nbsp;|&nbsp; 香港中文大学 硕士 &nbsp;|&nbsp; 滴滴 / 字节 / 返利网 产品实习
+        </p>
+        <div class="hero__actions reveal" data-d="3">
+          <a href="#experience" class="btn btn--solid">查看经历</a>
+          <a href="#photography" class="btn btn--ghost">摄影作品</a>
+        </div>
+      </div>
+      <div class="hero__media reveal" data-d="2">
+        <img src="assets/images/photo-05.jpg" alt="摄影作品" loading="eager" />
+        <span class="hero__media-cap">用光作画，以数据度量增长</span>
+      </div>
+      <div class="hero__scroll">向下滚动 ↓</div>
+    </section>
+
+    <!-- ============ 关于 ============ -->
+    <section class="section" id="about">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="section__num">01</span>
+          <h2 class="section__title">关于 <em>About</em></h2>
+        </div>
+        <div class="about">
+          <div class="about__intro reveal">
+            <img class="about__portrait" src="assets/images/portrait.jpg" alt="王浩然" />
+            <p class="about__lead">
+              我是一名应届生，香港中文大学 Information System and Technology Management 硕士、湖南大学金融学本科。
+              有 <strong>滴滴、字节跳动、返利网</strong> 三段产品实习，专注<em>增长</em>与<em>数据驱动</em>，
+              熟悉 RPA 自动化与 AI 工作流搭建。
+            </p>
+            <p>
+              英语流利（六级 / 托福 / GRE 319），曾在安克、滴滴以英文工作。
+              性格外向、抗压、负责任；工作之外爱电影、摄影、健身——
+              曾为学校公众号拍摄宣传照片，也多次登台公开演讲。
+            </p>
+            <p class="about__tagline">“做有数据 sense 的产品，也做会布光的摄影。”</p>
+          </div>
+          <aside class="about__stats">
+            <div class="stat reveal">
+              <span class="stat__num">3</span>
+              <span class="stat__label">产品实习</span>
+            </div>
+            <div class="stat reveal">
+              <span class="stat__num">UNO</span>
+              <span class="stat__label">数字银行改版</span>
+            </div>
+            <div class="stat reveal">
+              <span class="stat__num">英语</span>
+              <span class="stat__label">托福高分 · GRE 319</span>
+            </div>
+            <div class="stat reveal">
+              <span class="stat__num">签约</span>
+              <span class="stat__label">图虫 · 视觉中国</span>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 实习经历 ============ -->
+    <section class="section section--alt" id="experience">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="section__num">02</span>
+          <h2 class="section__title">实习经历 <em>Experience</em></h2>
+        </div>
+
+        <!-- 滴滴 -->
+        <article class="exp reveal">
+          <header class="exp__head">
+            <div class="exp__meta">
+              <span class="exp__org">滴滴 DiDi</span>
+              <span class="exp__role">国际金融产品经理实习生 · FinTech 国际部</span>
+            </div>
+            <span class="exp__time">2026.05 — 至今</span>
+          </header>
+          <p class="exp__bg">
+            参与滴滴墨西哥金融独立 APP（DiDi Finanzas）“银行化”战略项目 —— <strong>UNO</strong>，
+            推动 APP 从“多产品工具集合”向“统一数字银行”转型，联动现金贷、信用卡、Cuenta、BNPL 四条业务线及设计、开发、测试团队完成首页、个人中心等核心场景改版；
+            同时兼顾 AI 用户洞察平台（VOC Insight Copilot）建设，驱动团队从“人工看数据”向“AI 自动归因给结论”转变。
+          </p>
+          <ul class="exp__list">
+            <li>
+              <h4>UNO 数字银行升级</h4>
+              <p>作为 App 平台侧 PM，对接四条业务线行业 PM，推动首页业务卡片、个人中心资产视图、底部 Tab 导航等模块的需求对齐与方案收敛；针对 200 万+ 日活用户，参与 A/B 实验方案（3 种分组策略 × 3 类用户分层），协调资源完成排期与交付。</p>
+            </li>
+            <li>
+              <h4>游客模式（未登录）首页设计</h4>
+              <p>独立负责 UNO 未登录态首页从 0 到 1 的方案设计，针对未登录/未注册用户设计展示方案，保证产品吸引力与数字银行心智建立。</p>
+            </li>
+            <li>
+              <h4>VOC Insight Copilot · AI 洞察平台</h4>
+              <p>推动产品团队从“人工看数据”向“AI 自动归因给结论”转变，沉淀用户洞察的智能化能力。</p>
+            </li>
+          </ul>
+        </article>
+
+        <!-- 字节 -->
+        <article class="exp reveal">
+          <header class="exp__head">
+            <div class="exp__meta">
+              <span class="exp__org">字节跳动 · 抖音</span>
+              <span class="exp__role">增长产品经理（召回）</span>
+            </div>
+            <span class="exp__time">2025.06 — 2025.09</span>
+          </header>
+          <p class="exp__bg">
+            协助抖音流失用户召回专项，构建三维分层模型并通过爱奇艺渠道精准投放，
+            3 个月召回 586 万用户（达成率 117%），7 日留存率 38.7%、商业化转化率 9.5%，项目 ROI 达 7.93% 实现盈利。
+          </p>
+          <div class="exp__metrics">
+            <div><strong>586 万</strong><span>3 月召回用户</span></div>
+            <div><strong>38.7%</strong><span>7 日留存</span></div>
+            <div><strong>7.93%</strong><span>项目 ROI</span></div>
+            <div><strong>9.5%</strong><span>30 日商业化转化</span></div>
+          </div>
+          <ul class="exp__list">
+            <li>
+              <h4>流失用户分层召回策略</h4>
+              <p>基于 100 万样本构建“高价值-内容-体验”三维分层模型，设计跨平台匹配与分层承接，3 个月召回 586 万用户，7 日留存 38.7%、30 日商业化转化 9.5%。</p>
+            </li>
+            <li>
+              <h4>广告投放策略优化</h4>
+              <p>设计精准定向体系，通过点位组合测试与文案 A/B 实验，广告点击率达 3.1%（高于平台均值 82%），唤起转化率 89.3%。</p>
+            </li>
+            <li>
+              <h4>承接链路与留存策略</h4>
+              <p>设计“调研 + 无门槛券”承接链路，A/B 测试使调研完成率 +25.2 个百分点；分层留存策略实现高价值层 7 日留存 45.2%、内容层 39.5%、体验层 31.8%。</p>
+            </li>
+            <li>
+              <h4>资源效率与归因分析</h4>
+              <p>主导 3 轮 A/B 测试确定最优策略组合；构建归因模型准确率达 94.7%，驱动信息流广告召回贡献提升至 72%，精选内容完播率 56.8%。</p>
+            </li>
+            <li>
+              <h4>ROI 测算与预算策略</h4>
+              <p>基于 3000 万预算测算分层 LTV，设计 LTV 导向出价策略优化预算分配，项目整体 ROI 达 7.93% 实现盈利，高价值层 ROI 达 37.2%。</p>
+            </li>
+          </ul>
+        </article>
+
+        <!-- 返利网 -->
+        <article class="exp reveal">
+          <header class="exp__head">
+            <div class="exp__meta">
+              <span class="exp__org">返利网</span>
+              <span class="exp__role">增长产品经理</span>
+            </div>
+            <span class="exp__time">2025.02 — 2025.05</span>
+          </header>
+          <p class="exp__bg">
+            主导海外业务优惠券智能分发与自动化提效项目，针对 CVR 长期停滞问题构建 5 维度 AI 评分模型与推荐策略，
+            实现优惠券 CVR 提升至 14.1%、7 日留存 +3%，并通过部署 5 个 RPA 流程释放团队运维工时。
+          </p>
+          <ul class="exp__list">
+            <li>
+              <h4>智能化优惠券分发策略</h4>
+              <p>针对 CVR 停滞于 12.5% 的问题，运用 Dify 搭建 AI 工作流，对 4 万+ 优惠券进行实时质量评分，构建 5 维度 AI 评分模型，驱动 CVR 提升至 14.1%。</p>
+            </li>
+            <li>
+              <h4>用户体验与功能交互</h4>
+              <p>重构推荐逻辑、高质券曝光前置，设计“质量标签 + 智能筛选器 + 赞/踩”功能，使用户参与率达 11.5%、7 日留存率 +3 个百分点。</p>
+            </li>
+            <li>
+              <h4>RPA 自动化提效</h4>
+              <p>主导部署 5 个影刀 RPA 流程，覆盖广告批量上新、数据清洗、合规审查等场景，释放团队运维工时。</p>
+            </li>
+          </ul>
+        </article>
+
+        <!-- 招商证券 -->
+        <article class="exp reveal">
+          <header class="exp__head">
+            <div class="exp__meta">
+              <span class="exp__org">招商证券</span>
+              <span class="exp__role">策略组研究助理</span>
+            </div>
+            <span class="exp__time">2024.12 — 2025.02</span>
+          </header>
+          <ul class="exp__list">
+            <li>
+              <h4>行业研究</h4>
+              <p>跟踪、研究并撰写 Grok3、DeepSeek R1 等 AI 产品的产业趋势，分析其技术特点与优势，研判所属行业的发展与投资趋势；每周撰写投资周报（市场资金流向、投资热点、周涨跌复盘）并上传公司公众号；运用 Excel、调研与财报构建中信证券、长亮科技等公司财务模型，分析公司业务情况。</p>
+            </li>
+            <li>
+              <h4>数据分析</h4>
+              <p>运用 Wind、Choice 获取金融数据并分析股票涨跌因素；用 Excel 函数与 Wind 分析股票涨跌规律，分析高股息股票的分红分位数，从而研判股票涨跌与股息率之间的关系。</p>
+            </li>
+            <li>
+              <h4>业务分析</h4>
+              <p>针对目标公司，从研报、座谈会收集业务数据，运用“量”“价”策略进行业务拆解，分析营收情况并预测未来业务收入，输出研究报告。</p>
+            </li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ 项目 ============ -->
+    <section class="section" id="projects">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="section__num">03</span>
+          <h2 class="section__title">独立项目 <em>Projects</em></h2>
+        </div>
+        <div class="projects">
+          <article class="project reveal">
+            <div class="project__top">
+              <h3>PawMate · 一起遛狗吧</h3>
+              <span class="project__tag">Vibe Coding · 独立开发</span>
+            </div>
+            <p class="project__time">2025.06 — 至今</p>
+            <p>面向养宠人群的宠物社交应用，独立完成从需求调研、功能规划、产品原型到前端开发的全流程；以 Cursor 辅助开发与提示词优化，交付 H5/PWA 版（浏览器可运行）与微信小程序版双端。</p>
+            <ul class="project__points">
+              <li><strong>地图社交：</strong>Leaflet + OpenStreetMap 实现附近遛狗人实时定位、查看主宠资料、一键发起聊天与约玩。</li>
+              <li><strong>动态社区：</strong>类朋友圈图文动态、故事圈、点赞评论与内容推荐；用影刀 RPA 爬取小红书热门宠物图文，结合 Dify AI 改写二次创作解决冷启动。</li>
+              <li><strong>即时通讯 & 商城：</strong>实时聊天与群组约玩；宠物用品商城含分类浏览、购物车与订单。PWA 支持 Service Worker 离线与添加到主屏。</li>
+            </ul>
+            <a href="遛狗/app.html" target="_blank" rel="noopener" class="btn btn--ghost btn--sm">访问站点 →</a>
+          </article>
+
+          <article class="project reveal">
+            <div class="project__top">
+              <h3>股票形态图书馆</h3>
+              <span class="project__tag">独立开发 · 纯静态</span>
+            </div>
+            <p class="project__time">教育站 · 可离线</p>
+            <p>纯静态、可离线的股票模型图解教育站，收录 85 个经典交易模型（≥50 要求，超额完成），每个模型以 K 线 + 成交量画出“长什么样”，点进去看形态要点、量能特征、买卖规则、失效信号与常见误区。</p>
+            <ul class="project__points">
+              <li><strong>教学框架：</strong>详情页 11 节统一结构（趋势三段论、辨认清单、量价配合、买卖规则、失效应对等），教“判断趋势”的元框架，而非死背形状。</li>
+              <li><strong>模拟投资：</strong>340 题题库（85 模型 × 4 变体）看图决策练习，模型名隐藏、三选一、揭晓正解与计分。</li>
+              <li><strong>工程实现：</strong>自绘 SVG 图表（零依赖、可离线）、种子化确定性图形、红涨绿跌色盲友好调色、深浅色独立配色。</li>
+            </ul>
+            <a href="股票教育/index.html" target="_blank" rel="noopener" class="btn btn--ghost btn--sm">访问站点 →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 教育 ============ -->
+    <section class="section section--alt" id="education">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="section__num">04</span>
+          <h2 class="section__title">教育背景 <em>Education</em></h2>
+        </div>
+        <div class="edu">
+          <article class="edu__item reveal">
+            <div class="edu__line">
+              <span class="edu__time">2025.08 — 2026.11</span>
+              <span class="edu__badge">硕士</span>
+            </div>
+            <h3 class="edu__school">香港中文大学</h3>
+            <p class="edu__major">Information System and Technology Management · 商学院 · 全日制</p>
+          </article>
+          <article class="edu__item reveal">
+            <div class="edu__line">
+              <span class="edu__time">2021.09 — 2025.06</span>
+              <span class="edu__badge">本科</span>
+            </div>
+            <h3 class="edu__school">湖南大学</h3>
+            <p class="edu__major">金融学</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 技能 ============ -->
+    <section class="section" id="skills">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="section__num">05</span>
+          <h2 class="section__title">技能与素养 <em>Skills</em></h2>
+        </div>
+        <div class="skills">
+          <div class="skill-group reveal">
+            <h4>课程基础</h4>
+            <ul class="tags">
+              <li>Tableau 数据可视化</li>
+              <li>Excel 数据分析</li>
+              <li>Python 机器学习</li>
+              <li>Java SE 编程</li>
+              <li>SQL 数据库</li>
+              <li>统计学</li>
+              <li>金融课程</li>
+            </ul>
+          </div>
+          <div class="skill-group reveal">
+            <h4>工具与方法</h4>
+            <ul class="tags">
+              <li>影刀 RPA</li>
+              <li>Dify / AI 工作流</li>
+              <li>Cursor · Vibe Coding</li>
+              <li>A/B 实验</li>
+              <li>用户分层</li>
+              <li>LTV / ROI 测算</li>
+            </ul>
+          </div>
+          <div class="skill-group reveal">
+            <h4>英语水平</h4>
+            <ul class="tags">
+              <li>CET-6</li>
+              <li>托福</li>
+              <li>GRE 319</li>
+              <li>安克 · 英文工作经历</li>
+              <li>滴滴 · 英文工作经历</li>
+            </ul>
+          </div>
+          <div class="skill-group reveal">
+            <h4>软实力</h4>
+            <ul class="tags">
+              <li>跨部门协作</li>
+              <li>产品 Sense</li>
+              <li>公开演讲</li>
+              <li>抗压与责任</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 爱好 ============ -->
+    <section class="section section--alt" id="hobbies">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="section__num">06</span>
+          <h2 class="section__title">爱好 <em>Hobbies</em></h2>
+        </div>
+        <p class="hobbies__lead reveal">工作之外，摄影是我最久的热爱，也健身、看电影——它们让我保持敏锐、保持松弛。</p>
+
+        <div class="hobbies">
+          <!-- 摄影（重点） -->
+          <article class="hobby hobby--feature reveal">
+            <div class="hobby__icon">◐</div>
+            <div class="hobby__body">
+              <div class="hobby__top">
+                <h3>摄影</h3>
+                <span class="hobby__time">广州芒果摄影 · 摄影助理 &nbsp;|&nbsp; 2023.06 — 2023.09</span>
+              </div>
+              <p>在中山大学医学院本硕博学生的毕业典礼上完成群像拍照，并为其他学校团体提供集体拍照；为个人提供室外摄影，风格覆盖古风、cosplay 等，熟练运用闪光灯布光。也曾为学校公众号拍摄多组宣传照片。</p>
+              <ul class="hobby__list">
+                <li><span>群像摄影</span>毕业典礼 & 学校团体集体照</li>
+                <li><span>个人室外</span>古风 · cosplay · 人像</li>
+                <li><span>布光技术</span>熟练运用闪光灯布光</li>
+              </ul>
+              <a href="#photography" class="btn btn--ghost btn--sm">查看作品集 →</a>
+            </div>
+          </article>
+
+          <article class="hobby reveal">
+            <div class="hobby__icon">◑</div>
+            <div class="hobby__body">
+              <div class="hobby__top">
+                <h3>健身</h3>
+              </div>
+              <p>规律训练，保持身体状态与精神专注，也是高压工作下的调节方式。</p>
+            </div>
+          </article>
+
+          <article class="hobby reveal">
+            <div class="hobby__icon">◒</div>
+            <div class="hobby__body">
+              <div class="hobby__top">
+                <h3>看电影</h3>
+              </div>
+              <p>对影像语言与叙事结构长期着迷——和摄影一脉相承，都是关于光、构图与节奏的练习。</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 摄影作品集 ============ -->
+    <section class="section photo" id="photography">
+      <div class="container">
+        <div class="section__head section__head--light reveal">
+          <span class="section__num">07</span>
+          <h2 class="section__title">摄影作品 <em>Photography</em></h2>
+          <p class="section__desc">点击任意作品可放大查看 · 古风 · cosplay · 群像 · 人像</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="gallery">
+        <figure class="gallery__item gallery__item--tall" data-index="0">
+          <img src="assets/images/photo-01.jpg" alt="摄影作品 01" loading="lazy" />
+        </figure>
+        <figure class="gallery__item" data-index="1">
+          <img src="assets/images/photo-02.jpg" alt="摄影作品 02" loading="lazy" />
+        </figure>
+        <figure class="gallery__item" data-index="2">
+          <img src="assets/images/photo-03.jpg" alt="摄影作品 03" loading="lazy" />
+        </figure>
+        <figure class="gallery__item gallery__item--wide" data-index="3">
+          <img src="assets/images/photo-04.jpg" alt="摄影作品 04" loading="lazy" />
+        </figure>
+        <figure class="gallery__item" data-index="4">
+          <img src="assets/images/photo-05.jpg" alt="摄影作品 05" loading="lazy" />
+        </figure>
+        <figure class="gallery__item gallery__item--tall" data-index="5">
+          <img src="assets/images/photo-06.jpg" alt="摄影作品 06" loading="lazy" />
+        </figure>
+        <figure class="gallery__item" data-index="6">
+          <img src="assets/images/photo-07.jpg" alt="摄影作品 07" loading="lazy" />
+        </figure>
+        <figure class="gallery__item gallery__item--wide" data-index="7">
+          <img src="assets/images/photo-08.jpg" alt="摄影作品 08" loading="lazy" />
+        </figure>
+        <figure class="gallery__item" data-index="8">
+          <img src="assets/images/photo-09.jpg" alt="摄影作品 09" loading="lazy" />
+        </figure>
+      </div>
+    </section>
+
+    <!-- ============ 联系 ============ -->
+    <section class="section section--cta" id="contact">
+      <div class="container">
+        <div class="contact reveal">
+          <p class="contact__eyebrow">LET'S TALK</p>
+          <h2 class="contact__title">一起做点<br/><em>有意思</em>的事</h2>
+          <p class="contact__sub">应届生，正在寻找产品经理 / AI 产品方向的机会。欢迎聊聊产品、增长，或摄影布光。</p>
+          <div class="contact__links">
+            <a href="tel:19201434946" class="contact__link">
+              <span class="contact__label">电话</span>
+              <span class="contact__value">19201434946</span>
+            </a>
+            <a href="mailto:2295457910@qq.com" class="contact__link">
+              <span class="contact__label">邮箱</span>
+              <span class="contact__value">2295457910@qq.com</span>
+            </a>
+            </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <span>© 2026 王浩然 Haoran Wang</span>
+      <span>以数据度量增长 · 以镜头定格瞬间</span>
+    </div>
+  </footer>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="lightbox__close" id="lbClose" aria-label="关闭">✕</button>
+    <button class="lightbox__nav lightbox__nav--prev" id="lbPrev" aria-label="上一张">‹</button>
+    <button class="lightbox__nav lightbox__nav--next" id="lbNext" aria-label="下一张">›</button>
+    <div class="lightbox__stage">
+      <img id="lbImage" src="" alt="放大查看" />
+    </div>
+    <div class="lightbox__count" id="lbCount"></div>
+  </div>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

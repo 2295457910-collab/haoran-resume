@@ -1,0 +1,56 @@
+{
+  "name": "PawMate - 遛狗社交App",
+  "short_name": "PawMate",
+  "description": "专为爱狗人士打造的社交平台，让每只狗狗都有朋友",
+  "start_url": "/app.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3B82F6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%233B82F6' rx='20'/><text x='50' y='65' text-anchor='middle' font-size='50' fill='white'>🐕</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%233B82F6' rx='20'/><text x='50' y='65' text-anchor='middle' font-size='50' fill='white'>🐕</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["social", "lifestyle", "pets"],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 844'><rect width='390' height='844' fill='%23f8fafc'/><text x='195' y='422' text-anchor='middle' font-size='24' fill='%23374151'>PawMate截图</text></svg>",
+      "sizes": "390x844",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "附近的朋友",
+      "url": "/app.html#map",
+      "description": "查看附近的遛狗朋友"
+    },
+    {
+      "name": "发布动态",
+      "url": "/app.html#discover",
+      "description": "分享你和狗狗的美好时光"
+    }
+  ],
+  "share_target": {
+    "action": "/app.html#discover",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+} 

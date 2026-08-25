@@ -1,0 +1,571 @@
+/* pages/discover/discover.wxss */
+.discover-container {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* 顶部导航 */
+.discover-header {
+  background-color: white;
+  padding: 20rpx 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.camera-btn {
+  width: 60rpx;
+  height: 60rpx;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 15rpx rgba(102, 126, 234, 0.3);
+}
+
+.camera-icon {
+  font-size: 32rpx;
+  color: white;
+}
+
+/* 朋友圈滚动区域 */
+.moments-scroll {
+  height: calc(100vh - 100rpx);
+}
+
+/* 个人信息卡片 */
+.profile-card {
+  position: relative;
+  margin-bottom: 20rpx;
+  background-color: white;
+}
+
+.profile-bg {
+  height: 300rpx;
+  position: relative;
+}
+
+.bg-image {
+  width: 100%;
+  height: 100%;
+}
+
+.profile-info {
+  position: absolute;
+  bottom: 30rpx;
+  right: 30rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.profile-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 15rpx;
+  border: 4rpx solid white;
+  margin-bottom: 15rpx;
+}
+
+.profile-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.3);
+  margin-bottom: 5rpx;
+}
+
+.profile-desc {
+  font-size: 26rpx;
+  color: white;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.3);
+}
+
+/* 朋友圈动态列表 */
+.moments-list {
+  background-color: white;
+}
+
+.moment-item {
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+/* 动态头部 */
+.moment-header {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20rpx;
+}
+
+.author-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+}
+
+.author-info {
+  flex: 1;
+}
+
+.author-name {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5rpx;
+}
+
+.moment-time {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 5rpx;
+}
+
+.moment-location {
+  font-size: 24rpx;
+  color: #667eea;
+}
+
+.moment-actions {
+  display: flex;
+  align-items: center;
+}
+
+.action-btn {
+  width: 50rpx;
+  height: 50rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-icon {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 动态内容 */
+.moment-content {
+  margin-bottom: 20rpx;
+}
+
+.content-text {
+  font-size: 30rpx;
+  line-height: 1.6;
+  color: #333;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.content-text.expanded {
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+.expand-btn {
+  color: #667eea;
+  font-size: 28rpx;
+  margin-top: 10rpx;
+}
+
+/* 媒体内容 */
+.moment-media {
+  margin-bottom: 20rpx;
+}
+
+.moment-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-bottom: 20rpx;
+}
+
+.tag-chip {
+  padding: 12rpx 20rpx;
+  border-radius: 999rpx;
+  background: rgba(59, 130, 246, 0.08);
+  color: #1d4ed8;
+  font-size: 22rpx;
+  font-weight: 500;
+}
+
+.moment-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12rpx;
+  padding: 20rpx;
+  background: #f1f5f9;
+  border-radius: 20rpx;
+  margin-bottom: 24rpx;
+}
+
+.metric-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.metric-icon {
+  font-size: 30rpx;
+}
+
+.metric-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.metric-label {
+  font-size: 22rpx;
+  color: #64748b;
+}
+
+.metric-value {
+  font-size: 26rpx;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+/* 单张图片 */
+.single-image {
+  max-width: 400rpx;
+}
+
+.media-image.single {
+  width: 100%;
+  max-width: 400rpx;
+  border-radius: 15rpx;
+}
+
+/* 图片网格 */
+.image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.image-grid.two-images {
+  max-width: 500rpx;
+}
+
+.image-grid.two-images .grid-image {
+  width: calc(50% - 5rpx);
+  height: 240rpx;
+}
+
+.image-grid.three-images {
+  max-width: 500rpx;
+}
+
+.image-grid.three-images .grid-image {
+  width: calc(33.33% - 7rpx);
+  height: 160rpx;
+}
+
+.image-grid.multi-images {
+  max-width: 500rpx;
+}
+
+.image-grid.multi-images .grid-image {
+  width: calc(33.33% - 7rpx);
+  height: 160rpx;
+}
+
+.grid-image {
+  border-radius: 10rpx;
+}
+
+/* 视频 */
+.video-container {
+  max-width: 500rpx;
+}
+
+.moment-video {
+  width: 100%;
+  height: 400rpx;
+  border-radius: 15rpx;
+}
+
+/* 互动区域 */
+.moment-interactions {
+  border-top: 1rpx solid #f0f0f0;
+  padding-top: 20rpx;
+}
+
+.interaction-stats {
+  margin-bottom: 15rpx;
+}
+
+.likes-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.like-icon {
+  font-size: 24rpx;
+  margin-right: 10rpx;
+}
+
+.like-text {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.comments-info {
+  margin-bottom: 10rpx;
+}
+
+.comment-count {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.interaction-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 15rpx 0;
+  border-top: 1rpx solid #f0f0f0;
+  border-bottom: 1rpx solid #f0f0f0;
+  margin-bottom: 15rpx;
+}
+
+.interaction-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10rpx;
+  transition: transform 0.2s;
+}
+
+.interaction-btn:active {
+  transform: scale(0.95);
+}
+
+.interaction-btn.liked .btn-icon {
+  color: #ff6b6b;
+}
+
+.btn-icon {
+  font-size: 32rpx;
+  margin-bottom: 5rpx;
+  color: #666;
+}
+
+.btn-text {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.interaction-btn.liked .btn-text {
+  color: #ff6b6b;
+}
+
+/* 评论预览 */
+.comments-preview {
+  background-color: #f8f9fa;
+  padding: 20rpx;
+  border-radius: 15rpx;
+}
+
+.comment-item {
+  margin-bottom: 10rpx;
+}
+
+.comment-item:last-child {
+  margin-bottom: 0;
+}
+
+.comment-author {
+  font-size: 26rpx;
+  color: #667eea;
+  font-weight: bold;
+}
+
+.comment-text {
+  font-size: 26rpx;
+  color: #333;
+  margin-left: 10rpx;
+}
+
+.view-all-comments {
+  margin-top: 10rpx;
+}
+
+.view-all-text {
+  font-size: 26rpx;
+  color: #667eea;
+}
+
+/* 加载更多 */
+.load-more, .no-more {
+  text-align: center;
+  padding: 40rpx;
+  background-color: white;
+}
+
+.load-text, .no-more-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 评论弹窗 */
+.comments-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transform: translateY(100%);
+  transition: transform 0.3s;
+  z-index: 1000;
+}
+
+.comments-modal.show {
+  transform: translateY(0);
+}
+
+.comments-content {
+  background-color: white;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.comments-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.comments-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.close-btn {
+  width: 60rpx;
+  height: 60rpx;
+  background-color: #f5f5f5;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: #999;
+}
+
+.comments-list {
+  flex: 1;
+  padding: 20rpx;
+}
+
+.comment-detail {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 30rpx;
+}
+
+.comment-avatar {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+}
+
+.comment-content {
+  flex: 1;
+}
+
+.comment-author {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5rpx;
+}
+
+.comment-text {
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.5;
+  margin-bottom: 5rpx;
+}
+
+.comment-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 评论输入区域 */
+.comment-input-area {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+  background-color: white;
+}
+
+.comment-input {
+  flex: 1;
+  background-color: #f5f5f5;
+  border-radius: 50rpx;
+  padding: 20rpx 30rpx;
+  font-size: 28rpx;
+  margin-right: 20rpx;
+}
+
+.send-comment-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 50rpx;
+  padding: 20rpx 30rpx;
+  font-size: 28rpx;
+}
+
+.send-comment-btn[disabled] {
+  background-color: #f5f5f5;
+  color: #999;
+}
+
+/* 遮罩层 */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s;
+  z-index: 999;
+}
+
+.overlay.show {
+  opacity: 1;
+  visibility: visible;
+} 

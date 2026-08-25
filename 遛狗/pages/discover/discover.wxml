@@ -1,0 +1,9 @@
+<view class="container">
+  <view class="header">发现</view>
+  <view class="coming-soon">
+    <text class="icon">🧭</text>
+    <text class="title">功能开发中</text>
+    <text class="desc">社区动态即将上线</text>
+  </view>
+</view>
+

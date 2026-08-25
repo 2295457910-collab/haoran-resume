@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawMate - 遛狗社交平台</title>
+    
+    <!-- PWA Meta -->
+    <meta name="theme-color" content="#3B82F6">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐕</text></svg>">
+    
+    <!-- CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+        
+        .leaflet-container {
+            background: #aaa !important;
+            border-radius: 1rem;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .sidebar-nav-item {
+            transition: all 0.2s ease;
+        }
+        
+        .sidebar-nav-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateX(4px);
+        }
+        
+        .sidebar-nav-item.active {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(147, 51, 234, 0.2) 100%);
+            border-left: 4px solid #3b82f6;
+            transform: translateX(2px);
+        }
+        
+        .sidebar-nav-item.active i {
+            transform: scale(1.1);
+        }
+        
+        .sidebar-nav-item.active span {
+            color: #1e40af;
+            font-weight: 600;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        
+        .product-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .chat-message {
+            animation: fadeInUp 0.3s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Main Container -->
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white border-r border-gray-200 flex flex-col fixed h-full z-40 shadow-lg">
+            <!-- Logo -->
+            <div class="p-6 border-b border-gray-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 hero-gradient rounded-2xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-paw text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold gradient-text">PawMate</h1>
+                        <p class="text-xs text-gray-500">遛狗社交平台</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-2">
+                <div class="sidebar-nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer active" onclick="switchTab('map')" data-tab="map">
+                    <i class="fas fa-map-marked-alt text-blue-600 w-5"></i>
+                    <span class="font-medium text-gray-700">附近的朋友</span>
+                </div>
+                <div class="sidebar-nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer" onclick="switchTab('discover')" data-tab="discover">
+                    <i class="fas fa-compass text-purple-600 w-5"></i>
+                    <span class="font-medium text-gray-700">发现</span>
+                </div>
+                <div class="sidebar-nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer relative" onclick="switchTab('messages')" data-tab="messages">
+                    <i class="fas fa-envelope text-green-600 w-5"></i>
+                    <span class="font-medium text-gray-700">消息</span>
+                    <span id="navMessageBadge" class="absolute right-4 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center hidden">2</span>
+                </div>
+                <div class="sidebar-nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer" onclick="switchTab('shop')" data-tab="shop">
+                    <i class="fas fa-store text-orange-600 w-5"></i>
+                    <span class="font-medium text-gray-700">商城</span>
+                </div>
+                <div class="sidebar-nav-item flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer" onclick="switchTab('profile')" data-tab="profile">
+                    <i class="fas fa-user text-pink-600 w-5"></i>
+                    <span class="font-medium text-gray-700">个人中心</span>
+                </div>
+            </nav>
+            
+            <!-- Walk Button -->
+            <div class="p-4 border-t border-gray-100">
+                <button id="walkToggleBtn" onclick="toggleWalk()" class="w-full flex items-center justify-center gap-3 py-4 rounded-xl font-semibold transition-all transform hover:scale-105 shadow-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700">
+                    <i class="fas fa-paw text-lg"></i>
+                    <span>开始遛狗</span>
+                </button>
+            </div>
+            
+            <!-- User Profile -->
+            <div class="p-4 border-t border-gray-100">
+                <div class="flex items-center gap-3">
+                    <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=100&h=100" 
+                         alt="我的头像" class="w-12 h-12 rounded-full object-cover border-2 border-blue-500">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-semibold text-gray-900 truncate">张小姐</h3>
+                        <p class="text-xs text-gray-500 truncate">金毛Lucky的妈妈</p>
+                    </div>
+                    <div class="w-3 h-3 bg-green-500 rounded-full pulse-dot"></div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="flex-1 ml-64">
+            <!-- Top Header -->
+            <header class="bg-white border-b border-gray-200 sticky top-0 z-30 px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <h2 id="pageTitle" class="text-2xl font-bold text-gray-900">附近的朋友</h2>
+                    <div class="flex items-center gap-4">
+                        <button onclick="openCart()" class="relative p-3 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-shopping-cart text-gray-600 text-lg"></i>
+                            <span id="headerCartBadge" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center hidden">0</span>
+                        </button>
+                        <button class="p-3 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-bell text-gray-600 text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Content Area -->
+            <div class="p-8">
+                <!-- Map Tab -->
+                <div id="mapTab" class="tab-content active">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- Map Container -->
+                        <div class="lg:col-span-2">
+                            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                                <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                                    <h3 class="font-semibold text-gray-800">
+                                        <i class="fas fa-map-marked-alt text-blue-500 mr-2"></i>
+                                        实时地图
+                                    </h3>
+                                    <div class="flex items-center gap-2">
+                                        <button onclick="centerMap()" class="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium">
+                                            <i class="fas fa-location-arrow mr-1"></i>
+                                            定位
+                                        </button>
+                                        <button onclick="toggleFilter()" class="px-4 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium">
+                                            <i class="fas fa-filter mr-1"></i>
+                                            筛选
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="h-[600px] relative">
+                                    <div id="map" class="h-full w-full"></div>
+                                    <!-- Map Overlay -->
+                                    <div id="mapOverlay" class="map-overlay absolute inset-0" 
+                                         onclick="hideUserCard();"
+                                         style="display: none; z-index: 400;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Side Panel -->
+                        <div class="space-y-6">
+                            <!-- Nearby Users -->
+                            <div class="bg-white rounded-2xl shadow-xl p-6">
+                                <h3 class="font-semibold text-gray-800 mb-4">
+                                    <i class="fas fa-users text-green-500 mr-2"></i>
+                                    附近的狗友
+                                </h3>
+                                <div id="nearbyUsersList" class="space-y-3">
+                                    <!-- Users will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- User Info Card -->
+                    <div id="userCard" class="fixed bottom-8 right-8 bg-white rounded-2xl shadow-2xl p-6 max-w-md z-[1000] hidden transform transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-4">
+                                <div class="relative">
+                                    <img id="cardAvatar" src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=150&h=150" 
+                                         alt="狗狗头像" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg">
+                                    <div class="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-3 border-white"></div>
+                                </div>
+                                <div>
+                                    <h3 id="cardName" class="text-xl font-bold text-gray-900">Lucky</h3>
+                                    <p id="cardOwner" class="text-gray-600">主人：张小姐</p>
+                                </div>
+                            </div>
+                            <button onclick="hideUserCard();" 
+                                    class="text-gray-400 hover:text-gray-600 p-2 transition-colors" 
+                                    title="关闭">
+                                <i class="fas fa-times text-2xl"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- 详细信息卡片 -->
+                        <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-4 mb-4">
+                            <h4 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <i class="fas fa-info-circle mr-2 text-blue-600"></i>
+                                详细资料
+                            </h4>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-white rounded-xl p-3 shadow-sm">
+                                    <div class="text-xs text-gray-500 mb-1">犬种</div>
+                                    <div id="cardBreed" class="text-sm font-semibold text-gray-900">金毛寻回犬</div>
+                                </div>
+                                <div class="bg-white rounded-xl p-3 shadow-sm">
+                                    <div class="text-xs text-gray-500 mb-1">年龄</div>
+                                    <div id="cardAge" class="text-sm font-semibold text-gray-900">3岁</div>
+                                </div>
+                                <div class="bg-white rounded-xl p-3 shadow-sm">
+                                    <div class="text-xs text-gray-500 mb-1">性别</div>
+                                    <div id="cardGender" class="text-sm font-semibold text-gray-900">公</div>
+                                </div>
+                                <div class="bg-white rounded-xl p-3 shadow-sm">
+                                    <div class="text-xs text-gray-500 mb-1">距离</div>
+                                    <div id="cardDistance" class="text-sm font-semibold text-gray-900">150m</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <p id="cardStatus" class="text-gray-600 text-sm mb-4 leading-relaxed">
+                            正在公园遛狗，寻找玩伴一起玩耍～
+                        </p>
+                        
+                        <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
+                            <span id="cardLastActive">2分钟前在线</span>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <button id="friendBtn" class="flex-1 bg-purple-600 text-white py-3 px-3 rounded-xl font-medium hover:bg-purple-700 transition-all transform hover:scale-105 shadow-md" onclick="toggleFriend()">
+                                <i class="fas fa-user-plus mr-2"></i>
+                                加狗友
+                            </button>
+                            <button class="flex-1 bg-blue-600 text-white py-3 px-3 rounded-xl font-medium hover:bg-blue-700 transition-all transform hover:scale-105 shadow-md" onclick="startChat()">
+                                <i class="fas fa-comment mr-2"></i>
+                                聊天
+                            </button>
+                            <button class="bg-green-600 text-white py-3 px-3 rounded-xl font-medium hover:bg-green-700 transition-all transform hover:scale-105 shadow-md" onclick="createMeetup()">
+                                <i class="fas fa-calendar-plus mr-2"></i>
+                                约遛狗
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Discover Tab -->
+                <div id="discoverTab" class="tab-content">
+                    <div class="max-w-4xl mx-auto">
+                        <!-- Story circles -->
+                        <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+                            <h3 class="font-semibold text-gray-800 mb-4">
+                                <i class="fas fa-play-circle text-pink-500 mr-2"></i>
+                                故事圈
+                            </h3>
+                            <div id="storyCirclesContainer" class="flex gap-6 overflow-x-auto pb-4"></div>
+                        </div>
+                        
+                        <!-- 搜索栏 -->
+                        <div class="mb-6">
+                            <div class="relative">
+                                <input type="text" id="searchInput" placeholder="搜索动态、用户、商品..." 
+                                       oninput="handleSearch(this.value)"
+                                       class="w-full pl-12 pr-4 py-3 bg-gray-100 rounded-2xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- 搜索结果 -->
+                        <div id="searchResults" class="hidden mb-6"></div>
+                        
+                        <!-- Posts -->
+                        <div id="postsContainer" class="space-y-6">
+                            <!-- Posts will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Messages Tab -->
+                <div id="messagesTab" class="tab-content">
+                    <div class="max-w-4xl mx-auto">
+                        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                            <div class="p-6 border-b border-gray-100">
+                                <h3 class="text-xl font-bold text-gray-900">消息列表</h3>
+                            </div>
+                            <div id="chatList" class="divide-y divide-gray-100">
+                                <!-- Chat list will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Shop Tab -->
+                <div id="shopTab" class="tab-content">
+                    <div class="max-w-6xl mx-auto">
+                        <!-- Banner -->
+                        <div class="hero-gradient rounded-3xl p-10 mb-8 text-white shadow-2xl">
+                            <h2 class="text-3xl font-bold mb-3">🐕 宠物用品商城</h2>
+                            <p class="text-white/90 mb-6 text-lg">精选宠物用品，让你的毛孩子更快乐</p>
+                            <div class="flex items-center gap-4">
+                                <span class="bg-white/20 backdrop-blur px-4 py-2 rounded-full text-sm font-medium">🔥 热门推荐</span>
+                                <span class="bg-white/20 backdrop-blur px-4 py-2 rounded-full text-sm font-medium">✨ 新品上市</span>
+                                <span class="bg-white/20 backdrop-blur px-4 py-2 rounded-full text-sm font-medium">💝 限时特惠</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Categories -->
+                        <div id="shopCategories" class="flex gap-4 mb-8 overflow-x-auto pb-4"></div>
+                        
+                        <!-- Products -->
+                        <div id="productsContainer">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <!-- Products will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Profile Tab -->
+                <div id="profileTab" class="tab-content">
+                    <div class="max-w-4xl mx-auto">
+                        <!-- Profile header -->
+                        <div class="bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 rounded-3xl p-10 mb-8 text-white shadow-2xl">
+                            <div class="flex items-center gap-6 mb-6">
+                                <div class="relative">
+                                    <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=200&h=200" 
+                                         alt="我的头像" class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-xl">
+                                    <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
+                                        <i class="fas fa-check text-white"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <h2 class="text-3xl font-bold mb-2">张小姐</h2>
+                                    <p class="text-white/90 mb-4 text-lg">金毛Lucky的妈妈 🐕</p>
+                                    <div class="flex items-center gap-6 text-sm">
+                                        <span><i class="fas fa-map-marker-alt mr-2"></i>北京·朝阳区</span>
+                                        <div class="bg-yellow-400 text-white px-4 py-2 rounded-full font-semibold shadow-lg">
+                                            <i class="fas fa-crown mr-2"></i>金牌用户
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Stats -->
+                            <div class="grid grid-cols-4 gap-4 mt-8">
+                                <div class="bg-white/20 backdrop-blur rounded-2xl p-4 text-center">
+                                    <div class="text-3xl font-bold">5</div>
+                                    <div class="text-sm opacity-90">我的狗友</div>
+                                </div>
+                                <div class="bg-white/20 backdrop-blur rounded-2xl p-4 text-center">
+                                    <div class="text-3xl font-bold">23</div>
+                                    <div class="text-sm opacity-90">发布动态</div>
+                                </div>
+                                <div class="bg-white/20 backdrop-blur rounded-2xl p-4 text-center">
+                                    <div class="text-3xl font-bold">12</div>
+                                    <div class="text-sm opacity-90">约玩记录</div>
+                                </div>
+                                <div class="bg-white/20 backdrop-blur rounded-2xl p-4 text-center">
+                                    <div class="text-3xl font-bold">89</div>
+                                    <div class="text-sm opacity-90">获赞</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="profileContent">
+                            <!-- My Dogs -->
+                            <div class="bg-white rounded-2xl p-6 mb-6 shadow-xl">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="font-bold text-xl text-gray-900 flex items-center">
+                                        <i class="fas fa-dog text-blue-600 mr-3"></i>
+                                        我的毛孩子
+                                    </h3>
+                                    <button onclick="openAddDogModal()" class="text-blue-500 hover:text-blue-700 font-medium text-sm"><i class="fas fa-plus mr-1"></i>添加</button>
+                                </div>
+                                <div id="myDogsList" class="flex gap-4 flex-wrap">
+                                    <!-- 动态加载 -->
+                                </div>
+                            </div>
+                        
+                            <!-- Menu Items -->
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                                    <div class="flex items-center justify-between p-5 hover:bg-gray-50 cursor-pointer transition-colors" onclick="openMeetupListModal()">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-14 h-14 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center">
+                                                <i class="fas fa-calendar-alt text-purple-600 text-xl"></i>
+                                            </div>
+                                            <span class="font-semibold text-gray-900 text-lg">我的约玩</span>
+                                        </div>
+                                        <i class="fas fa-chevron-right text-gray-400 text-xl"></i>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between p-5 hover:bg-gray-50 cursor-pointer transition-colors" onclick="showToast('收藏功能：已收藏3个商品和5条动态')">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-14 h-14 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl flex items-center justify-center">
+                                                <i class="fas fa-heart text-green-600 text-xl"></i>
+                                            </div>
+                                            <span class="font-semibold text-gray-900 text-lg">我的收藏</span>
+                                        </div>
+                                        <i class="fas fa-chevron-right text-gray-400 text-xl"></i>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between p-5 hover:bg-gray-50 cursor-pointer transition-colors" onclick="openOrdersPage()">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-14 h-14 bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl flex items-center justify-center">
+                                                <i class="fas fa-shopping-bag text-orange-600 text-xl"></i>
+                                            </div>
+                                            <span class="font-semibold text-gray-900 text-lg">我的订单</span>
+                                        </div>
+                                        <i class="fas fa-chevron-right text-gray-400 text-xl"></i>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                                    <div class="flex items-center justify-between p-5 hover:bg-gray-50 cursor-pointer transition-colors" onclick="openSettingsModal()">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center">
+                                                <i class="fas fa-cog text-blue-600 text-xl"></i>
+                                            </div>
+                                            <span class="font-semibold text-gray-900 text-lg">设置</span>
+                                        </div>
+                                        <i class="fas fa-chevron-right text-gray-400 text-xl"></i>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between p-5 hover:bg-gray-50 cursor-pointer transition-colors" onclick="showToast('帮助中心：常见问题、使用指南、联系客服')">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-2xl flex items-center justify-center">
+                                                <i class="fas fa-question-circle text-yellow-600 text-xl"></i>
+                                            </div>
+                                            <span class="font-semibold text-gray-900 text-lg">帮助中心</span>
+                                        </div>
+                                        <i class="fas fa-chevron-right text-gray-400 text-xl"></i>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                                    <div class="flex items-center justify-between p-5 hover:bg-red-50 cursor-pointer transition-colors" onclick="showToast('已退出登录')">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-14 h-14 bg-gradient-to-br from-red-100 to-red-200 rounded-2xl flex items-center justify-center">
+                                                <i class="fas fa-sign-out-alt text-red-600 text-xl"></i>
+                                            </div>
+                                            <span class="font-semibold text-red-600 text-lg">退出登录</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-10 pb-8">
+                            <p class="text-gray-400 text-lg">PawMate v2.0.0</p>
+                            <p class="text-gray-300 text-sm mt-2">让每只狗狗都有朋友</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Toast -->
+    <div id="toast" class="fixed top-8 left-1/2 transform -translate-x-1/2 bg-gray-900/95 text-white px-8 py-4 rounded-2xl font-medium z-[9999] opacity-0 transition-all duration-300 shadow-2xl backdrop-blur"></div>
+    
+    <!-- 聊天详情页面 -->
+    <div id="chatDetailPage" class="fixed inset-0 bg-white z-[9998] hidden flex flex-col" style="left: 256px;">
+        <!-- 聊天顶部栏 -->
+        <div class="bg-white border-b border-gray-200 px-8 py-5 flex items-center gap-4 shrink-0">
+            <button onclick="closeChatDetail()" class="p-3 -ml-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </button>
+            <img id="chatAvatar" src="" alt="" class="w-14 h-14 rounded-full object-cover border-2 border-gray-100">
+            <div class="flex-1">
+                <h3 id="chatName" class="text-xl font-bold text-gray-900"></h3>
+                <p class="text-sm text-green-600 font-medium flex items-center gap-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full pulse-dot"></span>
+                    在线
+                </p>
+            </div>
+            <button class="p-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+                <i class="fas fa-ellipsis-v text-xl"></i>
+            </button>
+        </div>
+        
+        <!-- 聊天消息区域 -->
+        <div id="chatMessages" class="flex-1 overflow-y-auto p-8 bg-gradient-to-b from-gray-50 to-white space-y-6">
+            <!-- 消息会动态加载 -->
+        </div>
+        
+        <!-- 聊天输入区域 -->
+        <div class="bg-white border-t border-gray-200 p-6 flex items-center gap-4 shrink-0">
+            <button class="p-3 text-gray-500 hover:bg-gray-100 rounded-xl transition-colors">
+                <i class="fas fa-image text-xl"></i>
+            </button>
+            <div class="flex-1">
+                <input type="text" id="chatInput" placeholder="输入消息..." 
+                       class="w-full px-6 py-4 bg-gray-100 rounded-2xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+            </div>
+            <button onclick="sendMessage()" class="p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- 商品详情页面 -->
+    <div id="productDetailPage" class="fixed inset-0 bg-white z-[9998] hidden flex flex-col" style="left: 256px;">
+        <!-- 商品顶部栏 -->
+        <div class="bg-white border-b border-gray-200 px-8 py-5 flex items-center justify-between shrink-0">
+            <button onclick="closeProductDetail()" class="p-3 -ml-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </button>
+            <div class="flex items-center gap-4">
+                <button class="p-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+                    <i class="fas fa-share-alt text-xl"></i>
+                </button>
+                <button onclick="openCart()" class="p-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors relative">
+                    <i class="fas fa-shopping-cart text-xl"></i>
+                    <span id="cartBadge" class="absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white text-xs rounded-full flex items-center justify-center hidden">0</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 商品内容区域 -->
+        <div class="flex-1 overflow-y-auto">
+            <!-- 商品图片轮播 -->
+            <div class="relative bg-gray-100 aspect-square max-h-[600px]">
+                <div id="productImage" class="w-full h-full bg-cover bg-center bg-gray-200"></div>
+                <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2">
+                    <div class="w-3 h-3 rounded-full bg-white shadow-lg"></div>
+                    <div class="w-3 h-3 rounded-full bg-white/50 shadow-lg"></div>
+                    <div class="w-3 h-3 rounded-full bg-white/50 shadow-lg"></div>
+                </div>
+            </div>
+            
+            <!-- 商品信息 -->
+            <div class="p-8 max-w-4xl mx-auto">
+                <div class="flex items-baseline gap-4 mb-4">
+                    <span id="productPrice" class="text-4xl font-bold text-red-500"></span>
+                    <span id="productOriginalPrice" class="text-xl text-gray-400 line-through"></span>
+                </div>
+                <h2 id="productName" class="text-2xl font-bold text-gray-900 mb-6"></h2>
+                <div class="flex items-center gap-6 text-gray-600 mb-8">
+                    <span id="productRating" class="flex items-center text-lg">
+                        <i class="fas fa-star text-yellow-400 mr-2"></i>
+                    </span>
+                    <span id="productSales" class="text-lg"></span>
+                    <span id="productStock" class="text-lg"></span>
+                </div>
+                
+                <!-- 规格选择 -->
+                <div class="border-t border-gray-200 pt-8 mb-8">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">选择规格</h3>
+                    <div id="productSpecs" class="flex flex-wrap gap-3">
+                        <!-- 规格按钮会动态生成 -->
+                    </div>
+                </div>
+                
+                <!-- 商品描述 -->
+                <div class="border-t border-gray-200 pt-8">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">商品详情</h3>
+                    <p id="productDescription" class="text-gray-600 leading-relaxed text-lg"></p>
+                </div>
+                
+                <!-- 用户评价 -->
+                <div class="border-t border-gray-200 pt-8 mt-8">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center justify-between">
+                        <span>
+                            <i class="fas fa-star text-yellow-400 mr-2"></i>
+                            用户评价
+                        </span>
+                        <span id="reviewCount" class="text-sm text-gray-500 font-normal"></span>
+                    </h3>
+                    <div id="productReviews" class="space-y-6">
+                        <!-- 评价会动态加载 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 商品底部操作栏 -->
+        <div class="bg-white border-t border-gray-200 p-6 flex items-center gap-4 shrink-0">
+            <button onclick="openCart()" class="flex flex-col items-center text-gray-600 px-4 hover:text-blue-600 transition-colors">
+                <i class="fas fa-store text-2xl mb-1"></i>
+                <span class="text-sm font-medium">店铺</span>
+            </button>
+            <button onclick="openCart()" class="flex flex-col items-center text-gray-600 px-4 hover:text-blue-600 transition-colors relative">
+                <i class="fas fa-shopping-cart text-2xl mb-1"></i>
+                <span class="text-sm font-medium">购物车</span>
+                <span id="cartBadge2" class="absolute -top-1 right-6 w-6 h-6 bg-red-500 text-white text-xs rounded-full flex items-center justify-center hidden">0</span>
+            </button>
+            <button onclick="addToCartFromDetail()" class="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white py-4 px-8 rounded-2xl font-bold hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg text-lg">
+                加入购物车
+            </button>
+            <button onclick="buyNow()" class="flex-1 bg-gradient-to-r from-red-500 to-pink-600 text-white py-4 px-8 rounded-2xl font-bold hover:from-red-600 hover:to-pink-700 transition-all shadow-lg text-lg">
+                立即购买
+            </button>
+        </div>
+    </div>
+    
+    <!-- 购物车页面 -->
+    <div id="cartPage" class="fixed inset-0 bg-white z-[9998] hidden flex flex-col" style="left: 256px;">
+        <!-- 购物车顶部栏 -->
+        <div class="bg-white border-b border-gray-200 px-8 py-5 flex items-center justify-between shrink-0">
+            <button onclick="closeCart()" class="p-3 -ml-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </button>
+            <h2 class="text-2xl font-bold text-gray-900">购物车</h2>
+            <button onclick="toggleCartEdit()" id="cartEditBtn" class="text-blue-600 font-semibold text-lg hover:text-blue-700">
+                编辑
+            </button>
+        </div>
+        
+        <!-- 购物车内容区域 -->
+        <div id="cartContent" class="flex-1 overflow-y-auto p-8">
+            <!-- 购物车商品会动态加载 -->
+        </div>
+        
+        <!-- 购物车底部结算栏 -->
+        <div class="bg-white border-t border-gray-200 p-8 flex items-center gap-6 shrink-0">
+            <label class="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" id="selectAllCart" onchange="toggleSelectAll()" class="w-6 h-6 rounded text-blue-600 cursor-pointer">
+                <span class="text-gray-700 font-medium text-lg">全选</span>
+            </label>
+            <div class="flex-1 text-right">
+                <span class="text-gray-600 text-lg">合计：</span>
+                <span id="cartTotal" class="text-3xl font-bold text-red-500">￥0</span>
+            </div>
+            <button onclick="checkout()" class="bg-gradient-to-r from-red-500 to-pink-600 text-white px-10 py-4 rounded-2xl font-bold hover:from-red-600 hover:to-pink-700 transition-all shadow-lg text-lg">
+                结算
+            </button>
+        </div>
+    </div>
+    
+    <!-- 订单确认页面 -->
+    <div id="checkoutPage" class="fixed inset-0 bg-white z-[9998] hidden flex flex-col" style="left: 256px;">
+        <!-- 订单顶部栏 -->
+        <div class="bg-white border-b border-gray-200 px-8 py-5 flex items-center gap-4 shrink-0">
+            <button onclick="closeCheckout()" class="p-3 -ml-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </button>
+            <h2 class="text-2xl font-bold text-gray-900">确认订单</h2>
+        </div>
+        
+        <!-- 订单内容区域 -->
+        <div class="flex-1 overflow-y-auto bg-gradient-to-b from-gray-50 to-white p-8">
+            <!-- 收货地址 -->
+            <div class="bg-white rounded-2xl p-6 mb-6 shadow-lg">
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-map-marker-alt text-red-500 text-2xl"></i>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="font-bold text-gray-900 text-lg">张小姐</span>
+                            <span class="text-gray-600 text-lg">138****8888</span>
+                        </div>
+                        <p class="text-gray-600 text-base">北京市朝阳区某某街道某某小区1号楼101室</p>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400 text-xl"></i>
+                </div>
+            </div>
+            
+            <!-- 商品列表 -->
+            <div id="checkoutProducts" class="bg-white rounded-2xl p-6 mb-6 shadow-lg">
+                <!-- 商品会动态加载 -->
+            </div>
+            
+            <!-- 订单备注 -->
+            <div class="bg-white rounded-2xl p-6 mb-6 shadow-lg">
+                <div class="flex items-center gap-4">
+                    <span class="text-gray-600 text-base">订单备注</span>
+                    <input type="text" placeholder="选填，请先和商家协商一致" 
+                           class="flex-1 text-right text-gray-500 text-base focus:outline-none">
+                </div>
+            </div>
+            
+            <!-- 价格明细 -->
+            <div class="bg-white rounded-2xl p-6 shadow-lg">
+                <div class="space-y-4 text-base">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">商品金额</span>
+                        <span id="checkoutSubtotal" class="text-gray-900 font-medium">￥0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">运费</span>
+                        <span class="text-gray-900 font-medium">￥0</span>
+                    </div>
+                    <div class="border-t border-gray-200 pt-4 flex justify-between">
+                        <span class="font-bold text-gray-900 text-lg">实付款</span>
+                        <span id="checkoutTotal" class="text-3xl font-bold text-red-500">￥0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 订单底部提交栏 -->
+        <div class="bg-white border-t border-gray-200 p-8 flex items-center justify-between shrink-0">
+            <div class="flex items-baseline gap-2">
+                <span class="text-gray-600 text-lg">合计：</span>
+                <span id="checkoutFinalTotal" class="text-3xl font-bold text-red-500">￥0</span>
+            </div>
+            <button onclick="submitOrder()" class="bg-gradient-to-r from-red-500 to-pink-600 text-white px-12 py-4 rounded-2xl font-bold hover:from-red-600 hover:to-pink-700 transition-all shadow-lg text-lg">
+                提交订单
+            </button>
+        </div>
+    </div>
+    
+    <!-- 订单成功页面 -->
+    <div id="orderSuccessPage" class="fixed inset-0 bg-white z-[9999] hidden flex-col items-center justify-center" style="left: 256px;">
+        <div class="text-center">
+            <div class="w-28 h-28 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl">
+                <i class="fas fa-check text-white text-5xl"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-900 mb-3">订单提交成功</h2>
+            <p class="text-gray-600 mb-10 text-lg">感谢您的购买！</p>
+            <div class="flex gap-4 justify-center">
+                <button onclick="closeOrderSuccess()" class="px-8 py-3 border-2 border-gray-300 text-gray-700 rounded-2xl font-semibold hover:bg-gray-50 transition-all text-lg">
+                    继续购物
+                </button>
+                <button onclick="viewOrders()" class="px-8 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-2xl font-semibold hover:from-red-600 hover:to-pink-700 transition-all shadow-lg text-lg">
+                    查看订单
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 预约遛狗弹窗 -->
+    <div id="meetupModal" class="fixed inset-0 bg-black/50 z-[1000] hidden flex items-end md:items-center justify-center" onclick="closeMeetupModal()">
+        <div class="bg-white rounded-t-3xl w-full max-w-md transform transition-transform duration-300 translate-y-full m-0 md:m-4 md:rounded-3xl" id="meetupModalContent" onclick="event.stopPropagation()">
+            <div class="p-8">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="text-2xl font-bold text-gray-900">预约遛狗</h3>
+                    <button onclick="closeMeetupModal()" class="text-gray-400 hover:text-gray-600 p-2 transition-colors">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Target user info -->
+                <div class="flex items-center gap-4 mb-8 p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl">
+                    <img id="meetupTargetAvatar" src="" alt="" class="w-16 h-16 rounded-full object-cover border-3 border-white shadow-lg">
+                    <div>
+                        <h4 id="meetupTargetName" class="font-bold text-gray-900 text-lg"></h4>
+                        <p id="meetupTargetOwner" class="text-sm text-gray-600"></p>
+                    </div>
+                </div>
+                
+                <!-- Date selection -->
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">日期</label>
+                    <div class="flex gap-3 overflow-x-auto pb-2" id="dateOptions">
+                        <!-- Date options will be loaded here -->
+                    </div>
+                    <input type="date" id="meetupDate" class="hidden">
+                </div>
+                
+                <!-- Time selection -->
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">时间</label>
+                    <div class="grid grid-cols-4 gap-3" id="timeOptions">
+                        <!-- Time options will be loaded here -->
+                    </div>
+                    <input type="time" id="meetupTime" class="hidden">
+                </div>
+                
+                <!-- Location -->
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">地点</label>
+                    <input type="text" id="meetupLocation" placeholder="输入见面地点" 
+                           class="w-full px-4 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base">
+                </div>
+                
+                <!-- Quick notes -->
+                <div class="mb-8">
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">留言（可选）</label>
+                    <div class="flex flex-wrap gap-2 mb-3" id="quickNotes">
+                        <button type="button" class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors" onclick="addQuickNote('一起玩飞盘吧！')">一起玩飞盘吧！</button>
+                        <button type="button" class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors" onclick="addQuickNote('带上玩具一起玩')">带上玩具一起玩</button>
+                        <button type="button" class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors" onclick="addQuickNote('可以交流一下养狗经验')">交流一下养狗经验</button>
+                    </div>
+                    <textarea id="meetupNote" placeholder="说点什么吧..." rows="3"
+                              class="w-full px-4 py-4 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-base"></textarea>
+                </div>
+                
+                <button onclick="sendMeetupRequest()" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-2xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg text-lg">
+                    发送约请
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 我的约遛狗列表弹窗 -->
+    <div id="meetupListModal" class="fixed inset-0 bg-black/50 z-[1000] hidden flex items-end md:items-center justify-center" onclick="closeMeetupListModal()">
+        <div class="bg-white rounded-t-3xl w-full max-w-md transform transition-transform duration-300 translate-y-full m-0 md:m-4 md:rounded-3xl max-h-[80vh] overflow-hidden" id="meetupListModalContent" onclick="event.stopPropagation()">
+            <div class="p-8">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="text-2xl font-bold text-gray-900">我的约遛狗</h3>
+                    <button onclick="closeMeetupListModal()" class="text-gray-400 hover:text-gray-600 p-2 transition-colors">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                    
+                <!-- 约遛狗列表 -->
+                <div id="meetupList" class="space-y-4 max-h-96 overflow-y-auto">
+                    <!-- 约遛狗项目会动态加载 -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 发布动态弹窗 -->
+    <div id="createPostModal" class="fixed inset-0 bg-black/60 z-[1000] hidden flex items-center justify-center" onclick="closeCreatePostModal()">
+        <div class="bg-white rounded-3xl w-full max-w-2xl mx-4 transform transition-all duration-300 scale-95 opacity-0" id="createPostModalContent" onclick="event.stopPropagation()">
+            <div class="p-8">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="text-2xl font-bold text-gray-900">
+                        <i class="fas fa-plus-circle text-blue-600 mr-2"></i>
+                        发布动态
+                    </h3>
+                    <button onclick="closeCreatePostModal()" class="text-gray-400 hover:text-gray-600 p-2 transition-colors">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                
+                <!-- 图片上传区域 -->
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">添加图片</label>
+                    <div id="postImagePreview" class="hidden mb-4">
+                        <div class="relative">
+                            <img id="postPreviewImg" src="" alt="Preview" class="w-full h-64 object-cover rounded-2xl">
+                            <button onclick="removePostImage()" class="absolute top-3 right-3 w-10 h-10 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <label class="block border-2 border-dashed border-gray-300 rounded-2xl p-12 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all" id="postImageUpload">
+                        <i class="fas fa-image text-5xl text-gray-400 mb-4"></i>
+                        <p class="text-gray-600 font-medium text-lg">点击上传图片</p>
+                        <p class="text-gray-400 text-sm mt-2">支持 JPG、PNG 格式</p>
+                        <input type="file" id="postImageInput" accept="image/*" class="hidden" onchange="previewPostImage(event)">
+                    </label>
+                </div>
+                
+                <!-- 动态内容 -->
+                <div class="mb-8">
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">说点什么...</label>
+                    <textarea id="postContent" placeholder="分享你和毛孩子的美好时光~" rows="4"
+                              class="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-lg"></textarea>
+                </div>
+                
+                <!-- 话题标签 -->
+                <div class="mb-8">
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">添加话题</label>
+                    <div class="flex flex-wrap gap-3">
+                        <button type="button" class="topic-tag px-5 py-2 text-sm bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100 transition-colors" onclick="toggleTopic(this)">#狗狗日常</button>
+                        <button type="button" class="topic-tag px-5 py-2 text-sm bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" onclick="toggleTopic(this)">#遛狗打卡</button>
+                        <button type="button" class="topic-tag px-5 py-2 text-sm bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" onclick="toggleTopic(this)">#萌宠日常</button>
+                        <button type="button" class="topic-tag px-5 py-2 text-sm bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors" onclick="toggleTopic(this)">#狗狗成长</button>
+                    </div>
+                </div>
+                
+                <div class="flex gap-4">
+                    <button onclick="closeCreatePostModal()" class="flex-1 py-4 border-2 border-gray-300 text-gray-700 rounded-2xl font-semibold hover:bg-gray-50 transition-all text-lg">
+                        取消
+                    </button>
+                    <button onclick="publishPost()" class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-2xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg text-lg">
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        发布
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 评论弹窗 -->
+    <div id="commentModal" class="fixed inset-0 bg-black/60 z-[1000] hidden flex items-end md:items-center justify-center" onclick="closeCommentModal()">
+        <div class="bg-white rounded-t-3xl w-full max-w-md transform transition-transform duration-300 translate-y-full m-0 md:m-4 md:rounded-3xl max-h-[80vh] overflow-hidden" id="commentModalContent" onclick="event.stopPropagation()">
+            <div class="p-6 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-gray-900">
+                        <i class="fas fa-comment text-blue-600 mr-2"></i>
+                        评论
+                    </h3>
+                    <button onclick="closeCommentModal()" class="text-gray-400 hover:text-gray-600 p-2 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="commentsList" class="p-6 overflow-y-auto max-h-96 space-y-6">
+                <!-- 评论会动态加载 -->
+            </div>
+            
+            <div class="p-6 border-t border-gray-100">
+                <div class="flex items-center gap-3">
+                    <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=100&h=100" 
+                         alt="我的头像" class="w-12 h-12 rounded-full object-cover">
+                    <input type="text" id="commentInput" placeholder="写下你的评论..." 
+                           class="flex-1 px-5 py-3 bg-gray-100 rounded-full text-base focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="submitComment()" class="p-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full hover:from-blue-700 hover:to-purple-700 transition-all">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 用户动态弹窗 -->
+    <div id="userProfileModal" class="fixed inset-0 bg-black/60 z-[1001] hidden flex items-center justify-center" onclick="closeUserProfileModal()">
+        <div class="bg-white rounded-3xl w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95 opacity-0" id="userProfileModalContent" onclick="event.stopPropagation()">
+            <div class="p-8">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="text-2xl font-bold text-gray-900" id="userProfileTitle">
+                        <i class="fas fa-user-circle text-blue-600 mr-2"></i>
+                        用户动态
+                    </h3>
+                    <button onclick="closeUserProfileModal()" class="text-gray-400 hover:text-gray-600 p-2 transition-colors">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                
+                <!-- 用户信息 -->
+                <div id="userProfileInfo" class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 mb-8"></div>
+                
+                <!-- 用户动态列表 -->
+                <div id="userProfilePosts" class="space-y-6"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="web-app.js"></script>
+</body>
+</html>

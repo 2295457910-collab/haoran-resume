@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "遛狗地图",
+  "usingComponents": {
+    "guide-modal": "/components/guide-modal/guide-modal"
+  }
+} 

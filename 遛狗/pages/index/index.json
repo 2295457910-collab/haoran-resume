@@ -1,0 +1,9 @@
+{
+  "usingComponents": {},
+  "navigationBarTitleText": "遛狗地图",
+  "navigationBarBackgroundColor": "#3b82f6",
+  "navigationBarTextStyle": "white",
+  "enablePullDownRefresh": false,
+  "disableScroll": true
+}
+

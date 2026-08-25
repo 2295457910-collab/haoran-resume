@@ -1,0 +1,171 @@
+<!-- pages/discover/discover.wxml -->
+<view class="discover-container">
+  <!-- 顶部导航 -->
+  <view class="discover-header">
+    <text class="header-title">狗友圈</text>
+    <view class="header-actions">
+      <view class="camera-btn" bindtap="publishMoment">
+        <text class="camera-icon">📷</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 朋友圈内容 -->
+  <scroll-view class="moments-scroll" scroll-y="true" refresher-enabled="true" bindrefresherrefresh="onRefresh" refresher-triggered="{{refreshing}}" bindscrolltolower="loadMore">
+    
+    <!-- 个人信息卡片 -->
+    <view class="profile-card" bindtap="editProfile">
+      <view class="profile-bg">
+        <image src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=400&h=200" class="bg-image" mode="aspectFill" />
+      </view>
+      <view class="profile-info">
+        <image src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=100&h=100" class="profile-avatar" mode="aspectFill" />
+        <text class="profile-name">遛狗达人</text>
+        <text class="profile-desc">和我的金毛Max一起享受遛狗时光</text>
+      </view>
+    </view>
+
+    <!-- 朋友圈动态列表 -->
+    <view class="moments-list">
+      <view class="moment-item" wx:for="{{momentsList}}" wx:key="id">
+        <!-- 用户信息 -->
+        <view class="moment-header">
+          <image src="{{item.author.avatar}}" class="author-avatar" mode="aspectFill" />
+          <view class="author-info">
+            <text class="author-name">{{item.author.name}}</text>
+            <text class="moment-time">{{item.timeText}}</text>
+            <text class="moment-location" wx:if="{{item.location}}">📍 {{item.location}}</text>
+          </view>
+          <view class="moment-actions">
+            <view class="action-btn" bindtap="showMomentActions" data-moment="{{item}}">
+              <text class="action-icon">⋯</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 文字内容 -->
+        <view class="moment-content" wx:if="{{item.content}}">
+          <text class="content-text {{item.expanded ? 'expanded' : ''}}" bindtap="toggleContent" data-id="{{item.id}}">{{item.content}}</text>
+          <text class="expand-btn" wx:if="{{item.content.length > 100 && !item.expanded}}" bindtap="toggleContent" data-id="{{item.id}}">展开</text>
+        </view>
+
+        <!-- 图片/视频内容 -->
+        <view class="moment-media" wx:if="{{item.images.length > 0 || item.video}}">
+          <!-- 单张图片 -->
+          <view class="single-image" wx:if="{{item.images.length === 1}}">
+            <image src="{{item.images[0]}}" class="media-image single" mode="aspectFill" bindtap="previewImage" data-urls="{{item.images}}" data-current="{{item.images[0]}}" />
+          </view>
+          
+          <!-- 多张图片网格 -->
+          <view class="image-grid {{item.images.length === 2 ? 'two-images' : item.images.length === 3 ? 'three-images' : 'multi-images'}}" wx:if="{{item.images.length > 1}}">
+            <image 
+              wx:for="{{item.images}}" 
+              wx:for-item="imageUrl" 
+              wx:for-index="imageIndex" 
+              wx:key="imageIndex"
+              src="{{imageUrl}}" 
+              class="grid-image" 
+              mode="aspectFill" 
+              bindtap="previewImage" 
+              data-urls="{{item.images}}" 
+              data-current="{{imageUrl}}" 
+            />
+          </view>
+
+          <!-- 视频 -->
+          <view class="video-container" wx:if="{{item.video}}">
+            <video src="{{item.video}}" class="moment-video" poster="{{item.videoCover}}" controls />
+          </view>
+        </view>
+
+        <view class="moment-tags" wx:if="{{item.tags && item.tags.length}}">
+          <view class="tag-chip" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</view>
+        </view>
+
+        <view class="moment-metrics" wx:if="{{item.metrics && item.metrics.length}}">
+          <view class="metric-item" wx:for="{{item.metrics}}" wx:for-item="metric" wx:key="label">
+            <text class="metric-icon">{{metric.icon}}</text>
+            <view class="metric-info">
+              <text class="metric-label">{{metric.label}}</text>
+              <text class="metric-value">{{metric.value}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 互动区域 -->
+        <view class="moment-interactions">
+          <view class="interaction-stats" wx:if="{{item.likeCount > 0 || item.commentCount > 0}}">
+            <view class="likes-info" wx:if="{{item.likeCount > 0}}" bindtap="showLikesList" data-moment="{{item}}">
+              <text class="like-icon">❤️</text>
+              <text class="like-text">{{item.likeUsers.slice(0, 3).join('、')}}{{item.likeCount > 3 ? '等' + item.likeCount + '人' : ''}}觉得很赞</text>
+            </view>
+            <view class="comments-info" wx:if="{{item.commentCount > 0}}">
+              <text class="comment-count">{{item.commentCount}}条评论</text>
+            </view>
+          </view>
+
+          <view class="interaction-buttons">
+            <view class="interaction-btn {{item.isLiked ? 'liked' : ''}}" bindtap="toggleLike" data-id="{{item.id}}">
+              <text class="btn-icon">{{item.isLiked ? '❤️' : '🤍'}}</text>
+              <text class="btn-text">{{item.isLiked ? '已赞' : '点赞'}}</text>
+            </view>
+            <view class="interaction-btn" bindtap="showComments" data-moment="{{item}}">
+              <text class="btn-icon">💬</text>
+              <text class="btn-text">评论</text>
+            </view>
+            <view class="interaction-btn" bindtap="shareMoment" data-moment="{{item}}">
+              <text class="btn-icon">📤</text>
+              <text class="btn-text">分享</text>
+            </view>
+          </view>
+
+          <!-- 评论列表（显示前3条） -->
+          <view class="comments-preview" wx:if="{{item.comments && item.comments.length > 0}}">
+            <view class="comment-item" wx:for="{{item.comments.slice(0, 3)}}" wx:for-item="comment" wx:key="id">
+              <text class="comment-author">{{comment.author}}:</text>
+              <text class="comment-text">{{comment.content}}</text>
+            </view>
+            <view class="view-all-comments" wx:if="{{item.comments.length > 3}}" bindtap="showComments" data-moment="{{item}}">
+              <text class="view-all-text">查看全部{{item.comments.length}}条评论</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{hasMore}}">
+      <text class="load-text">加载更多...</text>
+    </view>
+    <view class="no-more" wx:else>
+      <text class="no-more-text">没有更多动态了</text>
+    </view>
+  </scroll-view>
+
+  <!-- 评论弹窗 -->
+  <view class="comments-modal {{showCommentsModal ? 'show' : ''}}" bindtap="hideCommentsModal">
+    <view class="comments-content" catchtap="stopPropagation">
+      <view class="comments-header">
+        <text class="comments-title">评论</text>
+        <view class="close-btn" bindtap="hideCommentsModal">✕</view>
+      </view>
+      <scroll-view class="comments-list" scroll-y="true">
+        <view class="comment-detail" wx:for="{{currentMomentComments}}" wx:key="id">
+          <image src="{{item.avatar}}" class="comment-avatar" />
+          <view class="comment-content">
+            <text class="comment-author">{{item.author}}</text>
+            <text class="comment-text">{{item.content}}</text>
+            <text class="comment-time">{{item.time}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="comment-input-area">
+        <input class="comment-input" placeholder="写评论..." value="{{commentText}}" bindinput="onCommentInput" />
+        <button class="send-comment-btn" bindtap="sendComment" disabled="{{!commentText.trim()}}">发送</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 遮罩层 -->
+  <view class="overlay {{showCommentsModal ? 'show' : ''}}" bindtap="hideCommentsModal"></view>
+</view> 

@@ -1,0 +1,202 @@
+<!-- pages/map/map.wxml -->
+<view class="map-container">
+  <!-- 地图组件 -->
+  <map 
+    id="map"
+    class="map"
+    longitude="{{userLocation.longitude}}"
+    latitude="{{userLocation.latitude}}"
+    scale="15"
+    markers="{{markers}}"
+    show-location="{{true}}"
+    enable-3D="{{true}}"
+    enable-overlooking="{{true}}"
+    enable-satellite="{{false}}"
+    enable-traffic="{{false}}"
+    bindmarkertap="onMarkerTap"
+    bindregionchange="onRegionChange"
+  >
+    <!-- 地图控件 -->
+    <cover-view class="map-controls">
+      <!-- 左侧控件 -->
+      <cover-view class="controls-left">
+        <cover-view class="control-btn" bindtap="centerToUser">
+          <cover-view class="control-text">📍</cover-view>
+        </cover-view>
+        <cover-view class="control-btn" bindtap="toggleMapType">
+          <cover-view class="control-text">🗺️</cover-view>
+        </cover-view>
+      </cover-view>
+      
+      <!-- 右侧控件 -->
+      <cover-view class="controls-right">
+        <cover-view class="control-btn filter-btn" bindtap="showFilter">
+          <cover-view class="control-text">🔍 筛选</cover-view>
+        </cover-view>
+      </cover-view>
+    </cover-view>
+  </map>
+
+  <!-- 用户信息卡片 -->
+  <view class="user-card {{showUserCard ? 'show' : ''}}" wx:if="{{selectedUser}}">
+    <view class="card-header">
+      <view class="user-info">
+        <image src="{{selectedUser.avatar}}" class="avatar avatar-md" mode="aspectFill"></image>
+        <view class="user-details">
+          <text class="user-name">{{selectedUser.name}}</text>
+          <text class="user-owner">主人：{{selectedUser.owner}}</text>
+        </view>
+      </view>
+      <view class="card-actions">
+        <view class="close-btn" bindtap="hideUserCard">✕</view>
+      </view>
+    </view>
+    
+    <view class="card-info">
+      <view class="info-item">
+        <text class="info-icon">📍</text>
+        <text class="info-text">距离你 {{selectedUser.distance}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-icon">🕐</text>
+        <text class="info-text text-success">{{selectedUser.lastActive}}活跃</text>
+      </view>
+    </view>
+    
+    <view class="card-tags" wx:if="{{selectedUser.tags && selectedUser.tags.length}}">
+      <view class="tag-chip" wx:for="{{selectedUser.tags}}" wx:key="*this">{{item}}</view>
+    </view>
+
+    <view class="card-status">
+      <text class="status-text">{{selectedUser.status}}</text>
+    </view>
+    
+    <view class="card-highlight" wx:if="{{selectedUser.highlight}}">
+      <text class="highlight-icon">✨</text>
+      <text class="highlight-text">{{selectedUser.highlight}}</text>
+    </view>
+
+    <view class="card-meta">
+      <view class="meta-item" wx:if="{{selectedUser.walkWindow}}">
+        <text class="meta-icon">⏰</text>
+        <view class="meta-content">
+          <text class="meta-label">最佳时间</text>
+          <text class="meta-text">{{selectedUser.walkWindow}}</text>
+        </view>
+      </view>
+      <view class="meta-item" wx:if="{{selectedUser.favoriteRoute}}">
+        <text class="meta-icon">🗺️</text>
+        <view class="meta-content">
+          <text class="meta-label">常走路线</text>
+          <text class="meta-text">{{selectedUser.favoriteRoute}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="card-metrics" wx:if="{{selectedUser.walkStats}}">
+      <view class="metric-item">
+        <text class="metric-label">时长</text>
+        <text class="metric-value">{{selectedUser.walkStats.duration}}</text>
+      </view>
+      <view class="metric-item">
+        <text class="metric-label">距离</text>
+        <text class="metric-value">{{selectedUser.walkStats.distance}}</text>
+      </view>
+      <view class="metric-item">
+        <text class="metric-label">配速</text>
+        <text class="metric-value">{{selectedUser.walkStats.pace}}</text>
+      </view>
+    </view>
+
+    <view class="card-buttons">
+      <button class="btn btn-primary" bindtap="startChat">
+        💬 打招呼
+      </button>
+      <button class="btn btn-success" bindtap="createMeetup">
+        📅 约遛狗
+      </button>
+    </view>
+  </view>
+
+  <!-- 筛选面板 -->
+  <view class="filter-panel {{showFilter ? 'show' : ''}}">
+    <view class="filter-header">
+      <text class="filter-title">筛选附近用户</text>
+      <view class="filter-close" bindtap="hideFilter">✕</view>
+    </view>
+    
+    <view class="filter-content">
+      <!-- 距离筛选 -->
+      <view class="filter-section">
+        <text class="filter-label">距离范围</text>
+        <view class="filter-options">
+          <view 
+            class="filter-option {{distanceFilter === 'all' ? 'active' : ''}}"
+            data-value="all"
+            bindtap="setDistanceFilter"
+          >全部</view>
+          <view 
+            class="filter-option {{distanceFilter === '100' ? 'active' : ''}}"
+            data-value="100"
+            bindtap="setDistanceFilter"
+          >100米内</view>
+          <view 
+            class="filter-option {{distanceFilter === '300' ? 'active' : ''}}"
+            data-value="300"
+            bindtap="setDistanceFilter"
+          >300米内</view>
+          <view 
+            class="filter-option {{distanceFilter === '500' ? 'active' : ''}}"
+            data-value="500"
+            bindtap="setDistanceFilter"
+          >500米内</view>
+        </view>
+      </view>
+      
+
+      
+      <!-- 活跃时间筛选 -->
+      <view class="filter-section">
+        <text class="filter-label">活跃时间</text>
+        <view class="filter-options">
+          <view 
+            class="filter-option {{timeFilter === 'all' ? 'active' : ''}}"
+            data-value="all"
+            bindtap="setTimeFilter"
+          >全部</view>
+          <view 
+            class="filter-option {{timeFilter === 'recent' ? 'active' : ''}}"
+            data-value="recent"
+            bindtap="setTimeFilter"
+          >最近活跃</view>
+          <view 
+            class="filter-option {{timeFilter === 'online' ? 'active' : ''}}"
+            data-value="online"
+            bindtap="setTimeFilter"
+          >正在线上</view>
+        </view>
+      </view>
+    </view>
+    
+    <view class="filter-actions">
+      <button class="btn btn-secondary" bindtap="resetFilter">重置</button>
+      <button class="btn btn-primary" bindtap="applyFilter">应用筛选</button>
+    </view>
+  </view>
+
+  <!-- 开始遛狗按钮 -->
+  <view class="walking-btn {{isWalking ? 'active' : ''}}" bindtap="toggleWalking">
+    <view class="btn-icon">{{isWalking ? '🛑' : '🐕'}}</view>
+    <text class="btn-text">{{isWalking ? '结束遛狗' : '开始遛狗'}}</text>
+  </view>
+
+  <!-- 遮罩层 -->
+  <view class="overlay {{showUserCard || showFilter ? 'show' : ''}}" bindtap="hideAllPanels"></view>
+</view>
+
+<!-- 新手引导 -->
+<guide-modal 
+  show="{{showMapGuide}}" 
+  guide-type="map" 
+  bind:complete="onGuideComplete">
+</guide-modal>

@@ -1,0 +1,35 @@
+<!-- 新手引导弹窗组件 -->
+<view class="guide-modal {{show ? 'show' : ''}}" wx:if="{{show}}" bindtap="closeGuide">
+  <!-- 背景遮罩 -->
+  <view class="guide-mask"></view>
+  
+  <!-- 引导内容 -->
+  <view class="guide-content" catchtap="stopPropagation">
+    <!-- 引导图标 -->
+    <view class="guide-icon">
+      <text class="icon-emoji">{{guideData.icon}}</text>
+    </view>
+    
+    <!-- 引导标题 -->
+    <view class="guide-title">{{guideData.title}}</view>
+    
+    <!-- 引导描述 -->
+    <view class="guide-desc">{{guideData.description}}</view>
+    
+    <!-- 步骤指示器 -->
+    <view class="guide-steps" wx:if="{{guideData.steps}}">
+      <view class="step-dot {{index <= currentStep ? 'active' : ''}}" 
+            wx:for="{{guideData.steps}}" 
+            wx:key="index">
+      </view>
+    </view>
+    
+    <!-- 操作按钮 -->
+    <view class="guide-actions">
+      <button class="guide-btn skip" bindtap="skipGuide" wx:if="{{showSkip}}">跳过</button>
+      <button class="guide-btn primary" bindtap="nextStep">
+        {{isLastStep ? '开始使用' : '下一步'}}
+      </button>
+    </view>
+  </view>
+</view> 

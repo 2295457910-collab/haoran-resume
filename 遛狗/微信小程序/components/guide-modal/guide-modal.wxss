@@ -1,0 +1,129 @@
+/* 新手引导弹窗样式 */
+.guide-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.guide-modal.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.guide-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.guide-content {
+  position: relative;
+  background: white;
+  border-radius: 24rpx;
+  padding: 60rpx 40rpx 40rpx;
+  margin: 0 40rpx;
+  max-width: 600rpx;
+  width: 100%;
+  text-align: center;
+  transform: scale(0.8) translateY(100rpx);
+  transition: all 0.3s ease;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.2);
+}
+
+.guide-modal.show .guide-content {
+  transform: scale(1) translateY(0);
+}
+
+.guide-icon {
+  margin-bottom: 30rpx;
+}
+
+.icon-emoji {
+  font-size: 80rpx;
+  line-height: 1;
+}
+
+.guide-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.guide-desc {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 40rpx;
+}
+
+.guide-steps {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40rpx;
+}
+
+.step-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: #e0e0e0;
+  margin: 0 8rpx;
+  transition: all 0.3s ease;
+}
+
+.step-dot.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  width: 24rpx;
+  border-radius: 12rpx;
+}
+
+.guide-actions {
+  display: flex;
+  gap: 20rpx;
+  justify-content: center;
+}
+
+.guide-btn {
+  padding: 20rpx 40rpx;
+  border-radius: 50rpx;
+  font-size: 28rpx;
+  border: none;
+  min-width: 120rpx;
+  transition: all 0.3s ease;
+}
+
+.guide-btn.skip {
+  background: #f5f5f5;
+  color: #999;
+}
+
+.guide-btn.skip:active {
+  background: #e0e0e0;
+}
+
+.guide-btn.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+}
+
+.guide-btn.primary:active {
+  transform: scale(0.98);
+}
+
+.guide-btn::after {
+  border: none;
+} 

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>股票形态图书馆 · 50+ 经典模型图解</title>
+<meta name="description" content="集成 50+ 经典股票交易模型的图解教育站：欧奈尔杯柄、利弗莫尔关键点、日本蜡烛图、威科夫、缠论、波浪、均线/MACD/布林/海龟/江恩……每个模型都有 K 线 + 成交量图解与买卖规则。">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主内容</a>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="#/" aria-label="返回首页">
+      <span class="brand-mark" aria-hidden="true">📈</span>
+      <span class="brand-text"><b>股票形态图书馆</b><small>50+ 经典模型 · K线图解</small></span>
+    </a>
+    <a class="nav-practice" href="#/practice" id="nav-practice">🎮 模拟投资</a>
+    <div class="header-tools">
+      <label class="search">
+        <span class="sr-only">搜索模型</span>
+        <input id="search-input" type="search" placeholder="搜索模型，如：杯柄、锤子线、缠论、MACD…" autocomplete="off">
+      </label>
+      <button id="theme-toggle" class="icon-btn" title="切换深浅色" aria-label="切换深浅色">
+        <span class="theme-icon" aria-hidden="true">🌗</span>
+      </button>
+    </div>
+  </div>
+  <nav class="filter-bar" id="filter-bar" aria-label="按分类筛选"></nav>
+  <p class="filter-hint" id="filter-hint" role="note"></p>
+</header>
+
+<main id="main" class="container">
+  <!-- 首页/目录视图 -->
+  <section id="catalog-view">
+    <div class="hero">
+      <h1>读懂K线背后的"故事"</h1>
+      <p class="lede">这里收录了 <b id="model-count">0</b> 个经典股票交易模型，来自《笑傲股市》(欧奈尔)、《股票作手回忆录》(利弗莫尔)、日本蜡烛图、威科夫、缠中说禅、波浪理论等。每一个都用<b>真实形态的 K 线 + 成交量</b>画出长什么样，点进去看买卖点、止损位与失效信号。</p>
+      <p class="hint">⚠️ 仅为教学示例，非投资建议。模型在历史回测中有效，不代表未来一定成立。</p>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="card-grid" id="card-grid"></div>
+    <p class="empty" id="empty-state" hidden>没有匹配的模型，换个关键词试试。</p>
+  </section>
+
+  <!-- 详情视图 -->
+  <section id="detail-view" hidden>
+    <button class="back-btn" id="back-btn">← 返回目录</button>
+    <article id="detail-content"></article>
+  </section>
+
+  <!-- 模拟投资视图 -->
+  <section id="practice-view" hidden>
+    <div class="practice">
+      <div class="prac-toolbar">
+        <button class="back-btn" id="prac-home">← 返回图书馆</button>
+        <div class="prac-score">
+          <span class="ps-item">第 <b id="ps-round">0</b> 题</span>
+          <span class="ps-item">正确 <b id="ps-correct">0</b>/<b id="ps-total">0</b></span>
+          <span class="ps-item">积分 <b id="ps-points">0</b></span>
+          <span class="ps-item ps-rate" id="ps-rate"></span>
+        </div>
+      </div>
+      <p class="prac-notice" id="prac-notice" hidden></p>
+      <div class="prac-stage" id="prac-stage"></div>
+      <div class="prac-end" id="prac-end" hidden></div>
+      <p class="prac-disclaimer">⚠️ 教学模拟行情，由模型化生成、非真实个股历史K线；用于练习"看图决策"，不构成投资建议，不代表实盘胜率。</p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p>股票形态图书馆 · 教学用途 · 非投资建议</p>
+    <p>数据来源：欧奈尔《笑傲股市》、利弗莫尔《股票作手回忆录》、史蒂夫·尼森《日本蜡烛图技术》、威科夫方法、缠中说禅、艾略特波浪理论。</p>
+  </div>
+</footer>
+
+<script src="js/rng.js"></script>
+<script src="js/candles.js"></script>
+<script src="js/chart.js"></script>
+<script src="js/data.js"></script>
+<script src="js/scenarios.js"></script>
+<script src="js/game.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
